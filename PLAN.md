@@ -9,7 +9,7 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 
 - [x] Task 1: package, CLI, setup instructions, and plan. Accept when editable
   installation, console entry point, and CLI help work.
-- [ ] Task 2: task/candidate/execution/evaluation schemas and self-authored
+- [x] Task 2: task/candidate/execution/evaluation schemas and self-authored
   fixtures, separating repair and evaluation tests. Accept when malformed tasks
   produce useful errors and data boundaries have automated coverage.
 - [ ] Task 3: mock provider and end-to-end pipeline. Accept when an offline test

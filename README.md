@@ -10,7 +10,8 @@ upper budget does not make these methods compute-matched.
 
 ## Status
 
-Day 1 is in progress: package and CLI foundation. Paid API execution is disabled.
+Day 1 is in progress: package, CLI foundation, validated schemas, and three
+self-authored development fixtures. Paid API execution is disabled.
 No performance measurements have been collected. See [PLAN.md](PLAN.md) and
 [PROGRESS.md](PROGRESS.md) for acceptance criteria and the next session.
 
@@ -40,6 +41,16 @@ python3 -m venv .venv
 Installation may need internet access; the Day 1 workflow itself is offline.
 `.env.example` documents future configuration names, with no credentials.
 No live model adapter is enabled or implemented yet.
+
+Run the automated schema and dataset checks:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+The [fixture format](data/README.md) separates repair-visible and evaluator-only
+data. These checks validate the controller and data; they do not run candidate
+functions on the host.
 
 ## Scope and safeguards
 

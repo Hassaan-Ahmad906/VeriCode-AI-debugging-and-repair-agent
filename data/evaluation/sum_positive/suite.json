@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "dataset_version": "self-authored-v1",
+  "task_id": "sum_positive",
+  "tests": "from solution import sum_positive\n\ndef test_mixed_signs():\n    values = [-4, 0, 3, -2, 8]\n    assert sum_positive(values) == 11\n    assert values == [-4, 0, 3, -2, 8]\n\ndef test_all_negative():\n    assert sum_positive([-1, -5]) == 0\n"
+}

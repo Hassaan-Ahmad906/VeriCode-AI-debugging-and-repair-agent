@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "dataset_version": "self-authored-v1",
+  "task_id": "count_vowels",
+  "tests": "from solution import count_vowels\n\ndef test_uppercase():\n    assert count_vowels('AEIOU') == 5\n\ndef test_mixed_and_non_vowels():\n    assert count_vowels('PyThOn! Ae') == 3\n    assert count_vowels('yY123') == 0\n    assert count_vowels('áéíóú') == 0\n"
+}

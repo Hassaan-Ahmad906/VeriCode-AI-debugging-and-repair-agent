@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "dataset_version": "self-authored-v1",
+  "split": "development",
+  "task_ids": ["sum_positive", "count_vowels", "clamp"]
+}

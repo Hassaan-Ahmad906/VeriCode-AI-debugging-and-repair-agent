@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "dataset_version": "self-authored-v1",
+  "task_id": "clamp",
+  "split": "development",
+  "specification": "Given integers value, lower, and upper with lower <= upper, return lower if value is below lower, upper if value is above upper, and value otherwise. Behaviour for lower > upper is outside the input domain.",
+  "entry_point": "clamp",
+  "task_file": "solution.py",
+  "source": "def clamp(value, lower, upper):\n    return min(lower, max(value, upper))\n",
+  "repair_tests": "from solution import clamp\n\ndef test_inside():\n    assert clamp(3, 0, 5) == 3\n\ndef test_at_lower():\n    assert clamp(0, 0, 5) == 0\n"
+}

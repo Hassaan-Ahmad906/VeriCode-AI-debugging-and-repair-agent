@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "dataset_version": "self-authored-v1",
+  "task_id": "sum_positive",
+  "split": "development",
+  "specification": "Given a list of integers, return the sum of strictly positive elements. Zero and negative values contribute nothing. Return 0 for an empty list. Do not mutate the input.",
+  "entry_point": "sum_positive",
+  "task_file": "solution.py",
+  "source": "def sum_positive(values):\n    return sum(values)\n",
+  "repair_tests": "from solution import sum_positive\n\ndef test_positive_values():\n    assert sum_positive([1, 2, 3]) == 6\n\ndef test_empty():\n    assert sum_positive([]) == 0\n"
+}

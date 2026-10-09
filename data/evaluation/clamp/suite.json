@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "dataset_version": "self-authored-v1",
+  "task_id": "clamp",
+  "tests": "from solution import clamp\n\ndef test_outside_bounds():\n    assert clamp(-10, -3, 4) == -3\n    assert clamp(10, -3, 4) == 4\n\ndef test_equal_bounds():\n    assert clamp(9, 2, 2) == 2\n\ndef test_at_upper():\n    assert clamp(4, -3, 4) == 4\n"
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "dataset_version": "self-authored-v1",
+  "task_id": "count_vowels",
+  "split": "development",
+  "specification": "Count occurrences of ASCII vowels a, e, i, o, u in a string, ignoring ASCII letter case. All other characters, including y and accented letters, contribute zero. An empty string has zero vowels.",
+  "entry_point": "count_vowels",
+  "task_file": "solution.py",
+  "source": "def count_vowels(text):\n    return sum(char in 'aeiou' for char in text)\n",
+  "repair_tests": "from solution import count_vowels\n\ndef test_lowercase():\n    assert count_vowels('hello') == 2\n\ndef test_empty():\n    assert count_vowels('') == 0\n"
+}

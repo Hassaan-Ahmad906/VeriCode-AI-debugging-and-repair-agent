@@ -19,7 +19,23 @@ default branch (`master`) and existing Git identity unchanged.
 - The user supplied `https://github.com/Hassaan-Ahmad906/VeriCode-AI-debugging-and-repair-agent.git`.
   `git ls-remote --symref` succeeded with no refs: the remote is empty, so it has
   no advertised default branch. Keep the local configured default, `master`.
-- Task 1 commit/push follows this log update; its outcome will be recorded in the
-  next task entry (a commit cannot contain its own final hash).
+- Commit `386b470` pushed to `origin/master`; verified the remote SHA matches.
+  Git metadata writes require approved elevated commands. A command-local
+  `safe.directory` exception handles sandbox/user ownership differences without
+  changing global Git settings or identity.
 
-Next: validate and commit Task 1, then add schemas and separated fixtures.
+### Task 2 — Validated schemas and fixtures
+
+- Added immutable task/candidate schemas, execution/evaluation result contracts,
+  bounded JSON loading, fixed manifests, and three self-authored development tasks.
+- Repair and evaluation assets have separate loaders. Repair objects contain no
+  evaluator paths or tests. Final-task manifest is intentionally empty.
+- Checks: `python -m pytest -q --tb=short` — 33 passed. Tests cover malformed data,
+  unsafe targets/IDs, oversized JSON, duplicate fields, split/version consistency,
+  and false mock-success claims. Long test parameter IDs initially broke Windows
+  test setup; explicit short IDs fixed the issue. No candidate code was executed.
+- Reviewed fixture arithmetic and specifications manually. Runtime fixture
+  behaviour remains unverified until the Day 2 sandbox exists.
+- Task 2 commit/push follows this entry; its SHA will be recorded with Task 3.
+
+Next: commit Task 2, then implement the mock provider and offline pipeline.
