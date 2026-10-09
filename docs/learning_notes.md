@@ -20,3 +20,15 @@ patch generalises beyond that feedback. Development/final task splits ask a
 different question: did we tune the system on the tasks used to measure it?
 Both separations matter. A mock result with `suite_passed: null` means no
 measurement occurred, not failure and not success.
+
+## Dependency inversion and honest mocks
+
+The repair function depends on `ModelProvider.propose`, not a vendor SDK. A mock
+implements that same contract with scripted responses, letting tests exercise
+data flow and failure handling offline. These tests validate the controller, not
+model ability or patch correctness. Tokens stay unknown; API spend is zero.
+
+A temporary directory prevents ordinary patch application from changing source
+fixtures, but cannot isolate executed Python from the host. Parsing an AST also
+does not remove side effects. This is why the mock runner never executes code and
+why an actual sandbox is the next session's prerequisite.

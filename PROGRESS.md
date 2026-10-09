@@ -36,6 +36,52 @@ default branch (`master`) and existing Git identity unchanged.
   test setup; explicit short IDs fixed the issue. No candidate code was executed.
 - Reviewed fixture arithmetic and specifications manually. Runtime fixture
   behaviour remains unverified until the Day 2 sandbox exists.
-- Task 2 commit/push follows this entry; its SHA will be recorded with Task 3.
+- Commit `217e150` pushed to `origin/master`; verified the remote SHA matches.
 
-Next: commit Task 2, then implement the mock provider and offline pipeline.
+### Task 3 — Offline mock pipeline
+
+- Added a provider-neutral contract, scripted mock provider, constrained full-file
+  patch validation, disposable staging workspace, mock executor/evaluator, and JSON
+  artifacts. CLI commands list tasks and run demonstrations. No candidate/test code
+  executes, and environment configuration cannot enable a paid provider.
+- Checks: `python -m pytest -q --tb=short` — 49 passed; installed console help,
+  task listing, saved CLI demo, and `pip check` passed. Diff whitespace and secret
+  pattern review passed. Ignored environments/caches/artifacts were not staged.
+- Tests verify source preservation, cleanup after success/errors, evaluator load
+  order and provider input fields, malicious side-effect text remaining inert,
+  unknown-task errors, no credential logging, and refusal to overwrite artifacts.
+- Demo artifact: `artifacts/day1-clamp.json` (local, ignored). It records a mock
+  result, zero API cost, unknown tokens, and no measured test outcomes.
+- This entry is included in the Task 3 commit, titled
+  `feat: add offline mock repair pipeline and JSON demo`. Find its hash with
+  `git log --oneline -3`; push verification is reported at session completion.
+
+### Day 1 completion and next-session starting point
+
+All three Day 1 acceptance criteria are met. No paid calls or candidate execution
+occurred. There are no measured repair results, approved sandbox runner, external
+benchmark, or final evaluation tasks. Current automated checks test the controller,
+not the runtime correctness of fixture code. No release tag was created.
+
+Stop here; do not begin Day 2 automatically. At the start of Day 2:
+
+1. Read this log, inspect Git status/remotes, and run the existing offline tests.
+2. Check Docker daemon access and Linux-container support. Its CLI alone was
+   detected on Day 1; configuration access was blocked inside the sandbox.
+3. Implement the bounded Docker runner with no network, non-root user, resource
+   limits, read-only root, bounded workspace/output, no inherited secrets or host
+   mounts, and full-job termination/cleanup. Retain mock-only execution if an
+   approved sandbox is unavailable.
+4. Verify trusted completion/exception/timeout cases and isolation before allowing
+   any candidate execution. Keep evaluation assets out of repair jobs.
+
+Commands from the repository root (PowerShell):
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\vericode.exe list-tasks
+.\.venv\Scripts\vericode.exe demo --task clamp
+```
+
+Understanding checks: Why are tokens null in a mock run? How do withheld tests
+differ from a final task split? Why is a temporary workspace not a sandbox?

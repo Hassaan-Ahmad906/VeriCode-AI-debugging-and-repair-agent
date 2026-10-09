@@ -12,7 +12,7 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 - [x] Task 2: task/candidate/execution/evaluation schemas and self-authored
   fixtures, separating repair and evaluation tests. Accept when malformed tasks
   produce useful errors and data boundaries have automated coverage.
-- [ ] Task 3: mock provider and end-to-end pipeline. Accept when an offline test
+- [x] Task 3: mock provider and end-to-end pipeline. Accept when an offline test
   loads a task, obtains a patch, and records an explicitly mock result.
 
 ## Day 2 — Isolated execution

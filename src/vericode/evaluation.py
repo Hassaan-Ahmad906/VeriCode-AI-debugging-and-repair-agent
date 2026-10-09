@@ -5,8 +5,9 @@ from pathlib import Path
 
 from vericode.datasets import contained_file, read_json
 from vericode.schemas import (
-    ValidationError, require_fields, require_id, require_text, require_version,
+    Candidate, ValidationError, require_fields, require_id, require_text, require_version,
 )
+from vericode.results import EvaluationResult, ExecutionResult
 
 
 @dataclass(frozen=True)
@@ -29,3 +30,16 @@ def load_evaluation_suite(evaluation_root: Path, task_id: str) -> EvaluationSuit
     if suite.task_id != task_id:
         raise ValidationError(f"evaluation task_id: expected {task_id!r}")
     return suite
+
+
+def evaluate_mock(candidate: Candidate, suite: EvaluationSuite) -> EvaluationResult:
+    if candidate.task_id != suite.task_id:
+        raise ValidationError("candidate and evaluation task IDs differ")
+    return EvaluationResult(
+        task_id=candidate.task_id,
+        execution=ExecutionResult(
+            mode="mock", status="not_executed",
+            detail="MOCK: evaluator suite loaded after repair; no evaluation tests executed.",
+        ),
+        suite_passed=None,
+    )
