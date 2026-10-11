@@ -1,13 +1,17 @@
 # Current limitations
 
-- Day 1 has no sandbox runner, live model adapter, repair strategies, independent
-  scoring, or measured repair results. Mock execution must never report test passes.
+- The local Docker runner and visible-test smoke checks work. There is still no
+  live model adapter, repair strategy A/B/C, independent scoring, or measured
+  live-model repair result. Mock execution must never report test passes.
 - Three hand-authored development fixtures are a small, nonrepresentative sample.
-  Their expected values were reviewed from specifications, but candidate/test
-  behaviour has not yet been run in isolation. No final benchmark is selected.
+  Expected values were reviewed from specifications. Original/mock-patched clamp
+  visible tests have now run in isolation. Evaluation fixtures have not run, and
+  no final benchmark is selected.
 - File separation and typed interfaces protect the intended context flow, but are
   not a security boundary against a compromised host controller. Container
-  restrictions are Day 2 work; containers reduce risk without guaranteeing safety.
+  restrictions and their verification are documented in `sandbox.md`; containers
+  reduce risk without guaranteeing safety. Pytest and candidate share an interpreter,
+  so malicious code may falsify test reports even while contained.
 - Public evaluation-only tests are unavailable during repair by design, not secret
   from people or model pretraining. Future public benchmarks may be contaminated.
 - Passing any finite test suite is not proof of correctness. Small samples, test

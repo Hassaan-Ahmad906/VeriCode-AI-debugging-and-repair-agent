@@ -20,9 +20,10 @@ from vericode.schemas import ValidationError
 def _git_revision() -> str | None:
     """Trusted controller metadata only; candidate code never gets a shell."""
     try:
+        repository = Path(__file__).resolve().parents[2]
         result = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=Path(__file__).resolve().parents[2],
+            ["git", "-c", f"safe.directory={repository.as_posix()}", "rev-parse", "HEAD"],
+            cwd=repository,
             capture_output=True, text=True, timeout=2, check=False,
         )
         return result.stdout.strip() if result.returncode == 0 else None

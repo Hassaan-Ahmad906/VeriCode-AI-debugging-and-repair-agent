@@ -40,3 +40,34 @@ def test_cli_does_not_enable_live_provider_from_environment(data_root, capsys, m
     output = capsys.readouterr().out
     assert "sentinel-do-not-log" not in output
     assert json.loads(output)["provider"] == "mock"
+
+
+def test_cli_visible_check_defaults_to_mock(data_root, capsys, monkeypatch):
+    monkeypatch.setattr("vericode.jobs._git_revision", lambda: None)
+    assert main(["run-tests", "--data-root", str(data_root)]) == 0
+    record = json.loads(capsys.readouterr().out)
+    assert record["execution"]["status"] == "not_executed"
+    assert record["configuration"]["backend"] == "mock"
+    assert record["evaluation"] is None
+
+
+def test_existing_output_is_rejected_before_job_starts(tmp_path, monkeypatch, capsys):
+    output = tmp_path / "existing.json"
+    output.write_text("preserve", encoding="utf-8")
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("existing output must be detected before executing a job")
+
+    monkeypatch.setattr("vericode.cli.run_visible_check", forbidden)
+    with pytest.raises(SystemExit) as exc:
+        main(["run-tests", "--output", str(output)])
+    assert exc.value.code == 2
+    assert "already exists" in capsys.readouterr().err
+    assert output.read_text(encoding="utf-8") == "preserve"
+
+
+@pytest.mark.parametrize("status,expected", [("passed", 0), ("failed", 1), ("timeout", 1), ("infrastructure_error", 2)])
+def test_cli_exit_code_distinguishes_test_outcomes_and_infrastructure(status, expected, monkeypatch, capsys):
+    monkeypatch.setattr("vericode.cli.run_visible_check", lambda *args, **kwargs: {"execution": {"status": status}})
+    assert main(["run-tests", "--backend", "docker"]) == expected
+    assert json.loads(capsys.readouterr().out)["execution"]["status"] == status

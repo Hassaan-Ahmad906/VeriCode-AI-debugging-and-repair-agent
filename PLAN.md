@@ -19,7 +19,7 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 
 - [x] Task 1: implement Docker limits: no network, non-root user, bounded CPU/memory/PIDs/time,
   dropped capabilities, no-new-privileges, read-only root, bounded temporary space.
-- [ ] Task 2: control workspace, paths, output, full-job timeout termination, and cleanup.
+- [x] Task 2: control workspace, paths, output, full-job timeout termination, and cleanup.
 - [ ] Task 3: verify completion, exceptions, timeouts, source immutability, and absence of
   credentials, Docker socket, unintended host files, and evaluation assets during
   repair. Document checks that cannot run; never fall back to host execution.

@@ -1,6 +1,9 @@
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
+
+_TEST_TEMP = pytest.StashKey()
 
 
 def pytest_addoption(parser):
@@ -10,6 +13,18 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "docker: explicit opt-in Linux Docker integration check")
+    # Sandbox and elevated Windows processes can share USER but have different
+    # filesystem permissions. Avoid their shared pytest-of-User directory.
+    if config.option.basetemp is None:
+        directory = TemporaryDirectory(prefix="vericode-pytest-")
+        config.stash[_TEST_TEMP] = directory
+        config.option.basetemp = directory.name
+
+
+def pytest_unconfigure(config):
+    directory = config.stash.get(_TEST_TEMP, None)
+    if directory is not None:
+        directory.cleanup()
 
 
 def pytest_collection_modifyitems(config, items):

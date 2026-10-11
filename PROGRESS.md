@@ -109,8 +109,29 @@ reported CPU/memory/swap/PID support). No existing containers were changed.
   disable pytest's cache provider. It did not affect test outcomes.
 - Container policy follows the official Docker documentation linked in
   `docs/sandbox.md`. Read the documented timing and pytest-integrity limitations.
-- Task 1 is recorded in the commit `feat: add bounded Docker candidate execution`;
-  its SHA and push verification follow in the next task entry.
+- Commit `f8d435f` pushed to `origin/master`; remote SHA verified.
 
-Next: Task 2 — immutable visible-job inputs, CLI execution/results, and checks for
-output overflow, workspace safety, and cleanup failure handling.
+### Task 2 — Visible jobs, CLI results, and cleanup checks
+
+- Added immutable text-only visible jobs, `sandbox-info`, and mock-by-default
+  `run-tests` with explicit Docker selection. Logs capture image/limits, source
+  hashes, observed counts/output, and cleanup state; they never load evaluation
+  assets. Existing output is rejected before execution.
+- Output floods terminate the container; capture is bounded. Empty/skipped suites
+  and early exit without reports cannot count as success. Unconfirmed cleanup
+  blocks further jobs on that executor. Invalid UTF-8 is rejected before execution.
+- Checks: 72 offline tests passed, 11 Docker checks skipped; targeted Docker-enabled
+  runner/job checks 25 passed. Coverage includes output flood, spawned descendants,
+  workspace writes preserving the dataset, invalid reports, and cleanup failure.
+- Windows temp-directory permissions affected both sandbox/elevated pytest runs.
+  Tests now use an individually created disposable temp directory and disable
+  cache writes; ordinary offline pytest passed afterward.
+- CLI preflight passed. Saved smoke artifacts `artifacts/day2-clamp-original.json`
+  (1 pass/1 failure, exit 1) and `artifacts/day2-clamp-mock-patch.json` (2 passes,
+  exit 0). Both cleanup checks succeeded; zero API spend. These are ignored local
+  engineering artifacts, not final evaluation or live-model measurements.
+- Task 2 is recorded in `feat: expose isolated visible-test checks and bounded results`;
+  its SHA and push verification follow in the Task 3 entry.
+
+Next: Task 3 — inspect and probe privilege/resource restrictions, absence of host
+credentials/files/evaluator assets, network denial, and bounded tmpfs behaviour.

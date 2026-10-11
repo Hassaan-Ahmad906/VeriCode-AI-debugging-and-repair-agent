@@ -25,6 +25,7 @@ class DockerExecutor:
         self.image = image
         self.limits = limits or ExecutionLimits()
         self.image_id: str | None = None
+        self.blocked_job: str | None = None
 
     def _control(self, *arguments: str, check: bool = True) -> ProcessResult:
         result = run_bounded(["docker", *arguments], timeout=5, output_limit=65_536)
@@ -78,16 +79,30 @@ class DockerExecutor:
             "tests_passed", "tests_failed", "tests_errors", "tests_skipped", "exit_code"
         } <= data.keys():
             raise ValidationError("container result frame is incomplete")
+        if data["status"] != "infrastructure_error":
+            if any(type(data[key]) is not int or data[key] < 0 for key in (
+                "tests_passed", "tests_failed", "tests_errors", "tests_skipped"
+            )):
+                raise ValidationError("container test counts must be non-negative integers")
+            permitted = {"passed": (0,), "failed": (1,), "test_error": (0, 2, 5)}
+            if type(data["exit_code"]) is not int or data["exit_code"] not in permitted[data["status"]]:
+                raise ValidationError("pytest exit code disagrees with reported outcome")
         return data
 
     def run(self, source: str, tests: str) -> ExecutionResult:
         require_text(source, "candidate source")
         require_text(tests, "visible tests")
+        if self.blocked_job:
+            return ExecutionResult("sandbox", "infrastructure_error", cleanup_confirmed=False,
+                                   job_name=self.blocked_job,
+                                   detail=f"Further execution blocked until cleanup of {self.blocked_job} is confirmed.")
         name = "vericode-job-" + uuid4().hex
         protocol = uuid4().hex
         started = monotonic()
         created = False
         cleaned = None
+        output = ""
+        truncated = False
         result = ExecutionResult("sandbox", "infrastructure_error", detail="Docker job did not start.")
         try:
             image_id = self.prepare()
@@ -95,15 +110,15 @@ class DockerExecutor:
             self._control(*create_arguments(name, image_id, self.limits))
             inspected = json.loads(self._control("inspect", name).output)[0]
             verify_container(inspected, image_id, self.limits)
-            payload = json.dumps({"source": source, "tests": tests, "protocol": protocol}).encode("utf-8")
+            payload = json.dumps({"source": source, "tests": tests, "protocol": protocol}, ensure_ascii=False).encode("utf-8")
             process = run_bounded(
                 ["docker", "start", "--attach", "--interactive", name], input_bytes=payload,
                 timeout=self.limits.wall_seconds, output_limit=self.limits.output_bytes,
             )
             output = process.output.decode("utf-8", errors="replace")
             output = output.encode("utf-8")[:65_536].decode("utf-8", errors="ignore")
-            metadata = dict(output=output,
-                            output_truncated=process.stop_reason == "output_limit")
+            truncated = process.stop_reason == "output_limit"
+            metadata = dict(output=output, output_truncated=truncated)
             if process.stop_reason:
                 # Kill the whole job immediately; killing the attached CLI alone only detaches it.
                 cleaned = self._cleanup(name)
@@ -119,13 +134,16 @@ class DockerExecutor:
                     data.setdefault("detail", "Observed pytest outcome inside a constrained Docker container.")
                     result = ExecutionResult("sandbox", **data, **metadata)
         except (SandboxUnavailable, OSError, ValueError, KeyError, IndexError, TypeError) as exc:
-            result = ExecutionResult("sandbox", "infrastructure_error", detail=f"Execution unavailable: {type(exc).__name__}; no host fallback.")
+            reason = str(exc) if isinstance(exc, (SandboxUnavailable, ValidationError)) else type(exc).__name__
+            result = ExecutionResult("sandbox", "infrastructure_error", output=output, output_truncated=truncated,
+                                     detail=f"Execution unavailable: {reason}; no host fallback.")
         finally:
             if created and cleaned is None:
                 cleaned = self._cleanup(name)
         result = replace(result, duration_seconds=monotonic() - started,
                          cleanup_confirmed=cleaned, job_name=name if created else None, image_id=self.image_id)
         if cleaned is False:
+            self.blocked_job = name
             result = replace(result, status="infrastructure_error", tests_passed=None, tests_failed=None,
                              tests_errors=None, tests_skipped=None,
                              detail=f"Cleanup could not be confirmed. Inspect Docker job {name} before further execution.")

@@ -32,3 +32,17 @@ A temporary directory prevents ordinary patch application from changing source
 fixtures, but cannot isolate executed Python from the host. Parsing an AST also
 does not remove side effects. This is why the mock runner never executes code and
 why an actual sandbox is the next session's prerequisite.
+
+## Container lifecycle and outcomes
+
+Docker's CPU quota and memory/PID limits apply to the container job. The watchdog
+limits elapsed time; removing the whole container handles spawned descendants.
+Stopping an attached Docker client alone merely disconnects the controller.
+
+Pass/fail counts are observations from pytest, not mathematical proofs. An empty
+suite, skipped tests, collection errors, output overflow, and a broken runner must
+not be folded into success. Cleanup failure is also an infrastructure failure:
+the controller blocks further work and reports the exact job name for recovery.
+
+The CLI smoke command demonstrates execution independently of model ability.
+A scripted mock patch passing real visible tests is still a scripted demonstration.

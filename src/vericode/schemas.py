@@ -15,7 +15,11 @@ class ValidationError(ValueError):
 def require_text(value: Any, field: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"{field}: expected a non-empty string")
-    if len(value.encode("utf-8")) > MAX_TEXT_BYTES:
+    try:
+        size = len(value.encode("utf-8"))
+    except UnicodeEncodeError as exc:
+        raise ValidationError(f"{field}: text must be valid UTF-8") from exc
+    if size > MAX_TEXT_BYTES:
         raise ValidationError(f"{field}: exceeds {MAX_TEXT_BYTES} UTF-8 bytes")
     if "\x00" in value:
         raise ValidationError(f"{field}: NUL characters are forbidden")

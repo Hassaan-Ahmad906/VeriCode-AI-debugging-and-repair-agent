@@ -52,8 +52,15 @@ class ExecutionResult:
             raise ValidationError("mock execution cannot report measured test outcomes or timing")
         if self.status == "passed" and (
             self.tests_passed is None or self.tests_passed < 1 or self.tests_failed != 0
+            or self.tests_errors not in (None, 0) or self.tests_skipped not in (None, 0)
+            or self.exit_code not in (None, 0)
         ):
             raise ValidationError("passed execution requires at least one pass and zero failures")
+        if self.status == "not_executed" and any(
+            value is not None for value in (self.tests_passed, self.tests_failed, self.tests_errors,
+                                            self.tests_skipped, self.exit_code)
+        ):
+            raise ValidationError("not_executed cannot report test counts or an exit code")
         if self.status == "failed" and (
             self.tests_failed is None or self.tests_failed < 1
         ):

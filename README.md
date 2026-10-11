@@ -10,9 +10,9 @@ upper budget does not make these methods compute-matched.
 
 ## Status
 
-Day 1 is complete: an installable CLI, validated schemas, three self-authored
-development fixtures, and a tested offline mock pipeline. Paid API execution is
-disabled. No performance measurements have been collected. See [PLAN.md](PLAN.md) and
+Day 2 is in progress: the CLI, mock pipeline, validated fixtures, and bounded
+Docker execution work. Paid API execution is disabled. No live-model experiment
+or final evaluation has been performed. See [PLAN.md](PLAN.md) and
 [PROGRESS.md](PROGRESS.md) for acceptance criteria and the next session.
 
 ## Setup
@@ -69,6 +69,40 @@ The [fixture format](data/README.md) separates repair-visible and evaluator-only
 data. These checks validate the controller and data; they do not run candidate
 functions on the host.
 
+## Run visible tests in Docker
+
+Start Docker Desktop with its Linux engine, then build the trusted image once:
+
+```powershell
+docker build --tag vericode-runner:day2 sandbox
+.\.venv\Scripts\python.exe -m vericode sandbox-info
+# Original clamp fixture: one visible test fails (exit code 1).
+.\.venv\Scripts\python.exe -m vericode run-tests --task clamp --backend docker
+# Scripted mock patch: both visible tests pass (exit code 0).
+.\.venv\Scripts\python.exe -m vericode run-tests --task clamp --candidate mock --backend docker
+```
+
+`run-tests` defaults to mock execution when `--backend docker` is omitted. Docker
+unavailability is an infrastructure error (exit code 2), with no host fallback.
+`--timeout 5` sets the attached execution deadline. `--output artifacts/check.json`
+saves a new JSON record; choose an unused filename. Each record includes observed
+counts/output, cleanup confirmation, image ID, limits, and source/test hashes.
+The command only loads repair-visible data; its `evaluation` field is null.
+
+These are development smoke checks. `--candidate mock` uses a scripted response
+and spends no API money. Visible-test success does not establish correctness on
+the separate evaluator suite. The original sum/vowel fixtures deliberately have
+visible examples that miss their bugs.
+
+Explicitly run trusted Docker integration checks:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest --run-docker -q
+```
+
+Docker checks are skipped by default, but fail when explicitly requested without
+a working engine/image. See [sandbox controls and limitations](docs/sandbox.md).
+
 ## Scope and safeguards
 
 Start with small, single-file Python functions and self-authored development
@@ -77,8 +111,8 @@ The agent must never receive reference implementations, evaluator paths, or
 evaluation-only tests and feedback during repair.
 
 Candidate code and generated tests are untrusted. Never execute them on the host.
-Day 1 simulates execution. Day 2 adds a constrained Docker runner; if a
-suitable sandbox is unavailable, retain mock execution. Container isolation
+The demo simulates execution; `run-tests --backend docker` explicitly uses the
+constrained runner. If Docker is unavailable, use the mock command. Container isolation
 reduces risk but does not guarantee security. This project is local-only and must
 not be deployed as a public arbitrary-code execution service.
 
@@ -88,5 +122,5 @@ proven correct.
 
 Read [architecture](docs/architecture.md), the [draft experiment protocol](docs/experiment_protocol.md),
 [limitations](docs/limitations.md), and [learning notes](docs/learning_notes.md).
-Real execution, strategies A/B/C, budgeted API adapters, benchmark integration,
-analysis, and the UI are later sessions. Day 1 is not a release-ready system.
+Strategies A/B/C, budgeted API adapters, independent evaluation, benchmark
+integration, analysis, and the UI are later sessions. This is not a release-ready system.

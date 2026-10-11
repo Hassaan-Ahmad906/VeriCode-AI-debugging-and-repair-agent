@@ -27,13 +27,30 @@ The provider is a trusted host-side adapter; the model itself has no file tools.
 The staging directory is a host-side text workspace, **not an execution sandbox**.
 It contains only `solution.py` and visible tests and is deleted on success or
 exceptions. Mock execution does not import or run either file. The only subprocess
-in the Day 1 application is a fixed `git rev-parse HEAD` metadata query, with a
-two-second timeout and no candidate-controlled arguments.
+in the mock flow is a fixed Git HEAD metadata query, with a two-second timeout and
+no candidate-controlled arguments. Its trust exception is limited to the editable
+package's repository path.
 
 Future flow adds sandbox execution, visible feedback, and bounded revisions before
 final independent evaluation. Evaluation feedback never returns to the provider.
 
 Day 1 separates data by API and object shape, not operating-system permissions.
 The trusted controller can read both fixture trees. The model will have no shell
-or filesystem tools. Day 2 must mount/copy only the approved inputs into each job,
-never the repository root, evaluation directory during repair, or credentials.
+or filesystem tools. The Docker runner sends only approved source/visible-test
+contents over stdin, never the repository root, evaluation directory during
+repair, or credentials.
+
+## Day 2 execution path
+
+`jobs.py` creates an immutable `VisibleJob` from a task and optional validated
+candidate. The executor receives two strings, not paths or evaluator objects.
+`DockerExecutor` preflights daemon capabilities, resolves a local image ID,
+creates and inspects a constrained job, and starts its trusted image harness.
+The harness stages text on container tmpfs and runs pytest in a child with a fixed
+environment. `processes.py` drains output with a hard retention limit and deadline.
+Cleanup removes the whole container. An unconfirmed cleanup blocks that executor
+from submitting more jobs.
+
+`run-tests` serializes an engineering smoke-check record. `sandbox-info` verifies
+prerequisites without executing candidate code. The older `demo` command remains
+mock-only. Actual repair strategies and final evaluator orchestration come later.

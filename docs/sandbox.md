@@ -39,7 +39,9 @@ deadlines. On timeout/output overflow the client is killed and the container is
 force-removed, terminating the entire container job, including descendants.
 Cleanup is verified via the exact generated job name. A daemon failure can prevent
 cleanup confirmation; that is an infrastructure error with the job name retained
-for recovery. Only this invocation's container is removed.
+for recovery. That executor blocks further jobs after an unconfirmed cleanup.
+Only this invocation's container is removed. A new CLI process cannot infer a
+previous process's unconfirmed cleanup, so resolve a reported job before resuming.
 
 The controller drains output while retaining a bounded prefix. The harness emits
 a structured outcome with a per-job token after pytest exits. Missing/malformed
