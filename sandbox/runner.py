@@ -1,7 +1,10 @@
 """Trusted image entry point. Candidate/test imports occur only in its child."""
 
 import json
+import math
+import os
 from pathlib import Path
+import signal
 import stat
 import subprocess
 import sys
@@ -38,6 +41,13 @@ def read_report(path, returncode):
 
 
 def main():
+    # Linux timer in the trusted parent, independent of the host controller.
+    # Exiting the container's main process makes the runtime stop its descendants.
+    seconds = float(sys.argv[1]) if len(sys.argv) == 2 else 10.0
+    if not math.isfinite(seconds) or not 0.5 <= seconds <= 60:
+        return 125
+    signal.signal(signal.SIGALRM, lambda *_: os._exit(124))
+    signal.setitimer(signal.ITIMER_REAL, seconds)
     protocol = None
     try:
         raw = sys.stdin.buffer.read(MAX_PAYLOAD + 1)

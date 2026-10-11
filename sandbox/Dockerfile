@@ -4,7 +4,7 @@ COPY requirements.txt /opt/vericode/requirements.txt
 RUN python -m pip install --no-cache-dir --disable-pip-version-check -r /opt/vericode/requirements.txt
 COPY runner.py pytest.ini /opt/vericode/
 RUN chmod -R a-w /opt/vericode && mkdir /workspace && chmod 0700 /workspace
-LABEL io.vericode.runner="1"
+LABEL io.vericode.runner="2"
 USER 65532:65532
 WORKDIR /workspace
 ENTRYPOINT ["/usr/local/bin/python", "-I", "-B", "/opt/vericode/runner.py"]

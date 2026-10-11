@@ -38,6 +38,9 @@ why an actual sandbox is the next session's prerequisite.
 Docker's CPU quota and memory/PID limits apply to the container job. The watchdog
 limits elapsed time; removing the whole container handles spawned descendants.
 Stopping an attached Docker client alone merely disconnects the controller.
+The trusted parent also has a Linux timer, independent of the host deadline.
+Neither timer removes the need to verify cleanup or keep the controller/runtime
+available. A local container is not a guarantee against every adversarial program.
 
 Pass/fail counts are observations from pytest, not mathematical proofs. An empty
 suite, skipped tests, collection errors, output overflow, and a broken runner must

@@ -15,7 +15,9 @@ as an evaluation task split. Evaluation-only **tests** and final-evaluation
 
 The visible tests deliberately miss some faults. In particular, `sum_positive`
 and `count_vowels` already satisfy their visible examples; this supports later
-overfitting checks. Nothing has been executed or empirically validated on Day 1.
+overfitting checks. On Day 2, original/scripted-patched clamp visible tests ran
+inside Docker; the evaluator fixtures remain unexecuted. Their authored test
+expectations have not become a final benchmark measurement.
 The evaluator fixtures are in the public repository, so they are not secret;
 the boundary is their absence from agent context and candidate workspaces.
 

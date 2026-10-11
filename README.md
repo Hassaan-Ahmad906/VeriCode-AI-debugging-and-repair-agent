@@ -10,8 +10,8 @@ upper budget does not make these methods compute-matched.
 
 ## Status
 
-Day 2 is in progress: the CLI, mock pipeline, validated fixtures, and bounded
-Docker execution work. Paid API execution is disabled. No live-model experiment
+Day 2 is complete: the CLI, mock pipeline, validated fixtures, bounded Docker
+execution, and isolation checks work. Paid API execution is disabled. No live-model experiment
 or final evaluation has been performed. See [PLAN.md](PLAN.md) and
 [PROGRESS.md](PROGRESS.md) for acceptance criteria and the next session.
 
@@ -71,7 +71,8 @@ functions on the host.
 
 ## Run visible tests in Docker
 
-Start Docker Desktop with its Linux engine, then build the trusted image once:
+Start Docker Desktop with its Linux engine (cgroup v2), then build the trusted
+image. Rebuild it after changing or pulling updated harness source:
 
 ```powershell
 docker build --tag vericode-runner:day2 sandbox
@@ -102,6 +103,8 @@ Explicitly run trusted Docker integration checks:
 
 Docker checks are skipped by default, but fail when explicitly requested without
 a working engine/image. See [sandbox controls and limitations](docs/sandbox.md).
+The runner has been verified on Docker Desktop 29.7.2 with its WSL2 Linux engine.
+Other environments must pass their own explicitly requested checks.
 
 ## Scope and safeguards
 

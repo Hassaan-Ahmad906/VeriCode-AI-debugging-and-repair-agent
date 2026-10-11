@@ -12,6 +12,9 @@
   restrictions and their verification are documented in `sandbox.md`; containers
   reduce risk without guaranteeing safety. Pytest and candidate share an interpreter,
   so malicious code may falsify test reports even while contained.
+- Verification covers Docker Desktop's WSL2/cgroup v2 engine. Preflight rejects
+  cgroup v1 and missing controls. Host/controller suspension or failure may delay
+  watchdogs/cleanup; CPU quota was inspected, not benchmarked across scheduler loads.
 - Public evaluation-only tests are unavailable during repair by design, not secret
   from people or model pretraining. Future public benchmarks may be contaminated.
 - Passing any finite test suite is not proof of correctness. Small samples, test

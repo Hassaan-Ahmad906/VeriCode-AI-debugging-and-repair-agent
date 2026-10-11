@@ -48,7 +48,8 @@ candidate. The executor receives two strings, not paths or evaluator objects.
 creates and inspects a constrained job, and starts its trusted image harness.
 The harness stages text on container tmpfs and runs pytest in a child with a fixed
 environment. `processes.py` drains output with a hard retention limit and deadline.
-Cleanup removes the whole container. An unconfirmed cleanup blocks that executor
+Host and independent in-container deadlines bound execution. Cleanup removes the
+whole container. An unconfirmed cleanup blocks that executor
 from submitting more jobs.
 
 `run-tests` serializes an engineering smoke-check record. `sandbox-info` verifies

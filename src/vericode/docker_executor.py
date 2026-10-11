@@ -9,7 +9,7 @@ from uuid import uuid4
 from vericode.processes import ProcessResult, run_bounded
 from vericode.results import ExecutionResult
 from vericode.sandbox_policy import (
-    DEFAULT_IMAGE, RUNNER_LABEL, ExecutionLimits, create_arguments,
+    DEFAULT_IMAGE, RUNNER_LABEL, RUNNER_VERSION, ExecutionLimits, create_arguments,
     validate_image_name, verify_container,
 )
 from vericode.schemas import ValidationError, require_text
@@ -26,6 +26,7 @@ class DockerExecutor:
         self.limits = limits or ExecutionLimits()
         self.image_id: str | None = None
         self.blocked_job: str | None = None
+        self.image_environment: tuple[str, ...] = ()
 
     def _control(self, *arguments: str, check: bool = True) -> ProcessResult:
         result = run_bounded(["docker", *arguments], timeout=5, output_limit=65_536)
@@ -36,19 +37,24 @@ class DockerExecutor:
     def prepare(self) -> str:
         try:
             info = json.loads(self._control("info", "--format", "{{json .}}").output)
-            if info.get("OSType") != "linux" or not all(
+            if info.get("OSType") != "linux" or info.get("CgroupVersion") != "2" or not all(
                 info.get(key) is True for key in ("MemoryLimit", "SwapLimit", "CpuCfsQuota", "PidsLimit")
             ):
-                raise SandboxUnavailable("Docker must support Linux CPU, memory, swap, and PID limits.")
+                raise SandboxUnavailable("Docker must support Linux cgroup v2 CPU, memory, swap, and PID limits.")
             if not any("name=seccomp" in option for option in info.get("SecurityOptions", [])):
                 raise SandboxUnavailable("Docker's default seccomp protection is required.")
             image = json.loads(self._control("image", "inspect", self.image).output)[0]
             if (image.get("Os") != "linux" or image["Config"].get("Volumes")
-                or (image["Config"].get("Labels") or {}).get(RUNNER_LABEL) != "1"):
+                or (image["Config"].get("Labels") or {}).get(RUNNER_LABEL) != RUNNER_VERSION):
                 raise SandboxUnavailable("Use the trusted VeriCode runner image without declared volumes.")
             image_id = image["Id"]
             if not re.fullmatch(r"sha256:[a-f0-9]{64}", image_id):
                 raise SandboxUnavailable("Docker did not return an immutable image ID.")
+            environment = tuple(image["Config"].get("Env") or [])
+            allowed = {"PATH", "LANG", "GPG_KEY", "PYTHON_VERSION", "PYTHON_SHA256"}
+            if any(not isinstance(item, str) or item.partition("=")[0] not in allowed for item in environment):
+                raise SandboxUnavailable("Runner image contains unexpected environment variables; rebuild the trusted image.")
+            self.image_environment = environment
             self.image_id = image_id
             return image_id
         except (OSError, ValueError, KeyError, IndexError, TypeError) as exc:
@@ -109,15 +115,16 @@ class DockerExecutor:
             created = True  # Also clean up if create times out after the daemon creates the job.
             self._control(*create_arguments(name, image_id, self.limits))
             inspected = json.loads(self._control("inspect", name).output)[0]
-            verify_container(inspected, image_id, self.limits)
+            verify_container(inspected, image_id, self.limits, self.image_environment)
             payload = json.dumps({"source": source, "tests": tests, "protocol": protocol}, ensure_ascii=False).encode("utf-8")
             process = run_bounded(
                 ["docker", "start", "--attach", "--interactive", name], input_bytes=payload,
                 timeout=self.limits.wall_seconds, output_limit=self.limits.output_bytes,
             )
             output = process.output.decode("utf-8", errors="replace")
-            output = output.encode("utf-8")[:65_536].decode("utf-8", errors="ignore")
-            truncated = process.stop_reason == "output_limit"
+            encoded_output = output.encode("utf-8")
+            output = encoded_output[:self.limits.output_bytes].decode("utf-8", errors="ignore")
+            truncated = process.stop_reason == "output_limit" or len(encoded_output) > self.limits.output_bytes
             metadata = dict(output=output, output_truncated=truncated)
             if process.stop_reason:
                 # Kill the whole job immediately; killing the attached CLI alone only detaches it.
@@ -127,6 +134,9 @@ class DockerExecutor:
                 state = json.loads(self._control("inspect", name).output)[0]["State"]
                 if state.get("OOMKilled"):
                     result = ExecutionResult("sandbox", "resource_limit", exit_code=state.get("ExitCode"), detail="Docker reported an out-of-memory kill.", **metadata)
+                elif state.get("ExitCode") == 124:
+                    result = ExecutionResult("sandbox", "timeout", exit_code=124,
+                                             detail="The trusted container watchdog reached its deadline.", **metadata)
                 elif process.returncode != 0 or state.get("Running") or state.get("ExitCode") != 0:
                     result = ExecutionResult("sandbox", "infrastructure_error", exit_code=state.get("ExitCode"), detail="Container exited without a normal runner completion.", **metadata)
                 else:

@@ -9,6 +9,7 @@ from vericode.schemas import ValidationError
 
 DEFAULT_IMAGE = "vericode-runner:day2"
 RUNNER_LABEL = "io.vericode.runner"
+RUNNER_VERSION = "2"
 
 
 @dataclass(frozen=True)
@@ -49,7 +50,7 @@ def validate_image_name(image: str) -> None:
 
 def create_arguments(name: str, image_id: str, limits: ExecutionLimits) -> list[str]:
     args = [
-        "create", "--name", name, "--label", f"{RUNNER_LABEL}=1", "--pull=never",
+        "create", "--name", name, "--label", f"{RUNNER_LABEL}={RUNNER_VERSION}", "--pull=never",
         "--interactive", "--init", "--network=none", "--user=65532:65532",
         "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges",
         "--cpus", str(limits.cpus), "--memory", str(limits.memory_bytes),
@@ -62,10 +63,13 @@ def create_arguments(name: str, image_id: str, limits: ExecutionLimits) -> list[
     ]
     for path, options in limits.tmpfs().items():
         args.extend(["--tmpfs", f"{path}:{options}"])
-    return args + [image_id, "-I", "-B", "/opt/vericode/runner.py"]
+    return args + [image_id, "-I", "-B", "/opt/vericode/runner.py", str(limits.wall_seconds)]
 
 
-def verify_container(data: dict[str, Any], image_id: str, limits: ExecutionLimits) -> None:
+def verify_container(
+    data: dict[str, Any], image_id: str, limits: ExecutionLimits,
+    expected_environment: tuple[str, ...] = (),
+) -> None:
     """Fail closed before starting a container whose inspected policy differs."""
     host = data["HostConfig"]
     config = data["Config"]
@@ -80,11 +84,19 @@ def verify_container(data: dict[str, Any], image_id: str, limits: ExecutionLimit
         raise ValidationError("container inspection does not match required execution limits")
     if config.get("User") != "65532:65532" or data.get("Image") != image_id:
         raise ValidationError("container user/image differs from the approved configuration")
+    if sorted(config.get("Env") or []) != sorted(expected_environment):
+        raise ValidationError("unexpected environment injection into the execution container")
+    if (config.get("Entrypoint") != ["/usr/local/bin/python"]
+        or config.get("Cmd") != ["-I", "-B", "/opt/vericode/runner.py", str(limits.wall_seconds)]
+        or config.get("WorkingDir") != "/workspace"
+        or host.get("LogConfig", {}).get("Type") != "none"):
+        raise ValidationError("container harness or logging configuration differs from policy")
     if host.get("CapDrop") != ["ALL"] or "no-new-privileges" not in host.get("SecurityOpt", []):
         raise ValidationError("container privilege restrictions are missing")
     if host.get("Binds") or host.get("Devices") or host.get("DeviceRequests") or host.get("VolumesFrom"):
         raise ValidationError("host mounts and devices are forbidden")
     if any(mount.get("Type") != "tmpfs" for mount in data.get("Mounts", [])):
         raise ValidationError("only bounded tmpfs mounts are permitted")
-    if config.get("Volumes") or host.get("PortBindings") or host.get("PidMode") == "host":
+    if (config.get("Volumes") or host.get("PortBindings")
+        or host.get("PidMode") == "host" or host.get("UTSMode") == "host"):
         raise ValidationError("volumes, exposed ports, and host PID sharing are forbidden")

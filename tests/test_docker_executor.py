@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from vericode.docker_executor import DockerExecutor
+from vericode.docker_executor import DockerExecutor, SandboxUnavailable
 from vericode.processes import ProcessResult
 from vericode.sandbox_policy import ExecutionLimits, create_arguments
 from vericode.schemas import ValidationError
@@ -46,6 +46,22 @@ def test_forged_or_duplicate_output_frames_are_rejected():
         runner._decode(fake + fake, "expected")
 
 
+def test_preflight_rejects_old_image_without_independent_deadline(monkeypatch):
+    info = {"OSType": "linux", "CgroupVersion": "2", "MemoryLimit": True,
+            "SwapLimit": True, "CpuCfsQuota": True, "PidsLimit": True,
+            "SecurityOptions": ["name=seccomp,profile=builtin"]}
+    old_image = {"Os": "linux", "Config": {"Labels": {"io.vericode.runner": "1"}}}
+    runner = DockerExecutor()
+
+    def control(*args, **kwargs):
+        return ProcessResult(0, json.dumps(info if args[0] == "info" else [old_image]).encode())
+
+    monkeypatch.setattr(runner, "_control", control)
+    with pytest.raises(SandboxUnavailable, match="trusted VeriCode runner image"):
+        runner.prepare()
+    assert runner.image_id is None
+
+
 @pytest.mark.docker
 def test_docker_normal_completion(docker_executor):
     result = docker_executor.run("def add(a, b): return a + b", "from solution import add\ndef test_add(): assert add(2, 3) == 5")
@@ -86,13 +102,16 @@ def test_cleanup_failure_blocks_next_job(monkeypatch):
     events = []
     policy = {
         "Image": image_id,
-        "Config": {"User": "65532:65532", "Volumes": None},
+        "Config": {"User": "65532:65532", "Volumes": None, "Env": [],
+                   "Entrypoint": ["/usr/local/bin/python"], "Cmd": ["-I", "-B", "/opt/vericode/runner.py", "10.0"],
+                   "WorkingDir": "/workspace"},
         "HostConfig": {
             "NetworkMode": "none", "ReadonlyRootfs": True, "Privileged": False,
             "Memory": limits.memory_bytes, "MemorySwap": limits.memory_bytes,
             "NanoCpus": 500_000_000, "PidsLimit": limits.pids, "IpcMode": "private",
             "CgroupnsMode": "private", "Init": True, "Tmpfs": limits.tmpfs(),
             "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges"],
+            "LogConfig": {"Type": "none"},
         },
         "State": {"ExitCode": 0, "Running": False, "OOMKilled": False},
     }
@@ -162,4 +181,41 @@ def test_early_success_exit_without_report_does_not_pass(docker_executor):
     result = docker_executor.run("import os\nos._exit(0)", "from solution import f\ndef test_f(): f()")
     assert result.status == "infrastructure_error", result
     assert result.tests_passed is None
+    assert result.cleanup_confirmed is True
+
+
+@pytest.mark.docker
+def test_container_watchdog_works_when_host_deadline_is_extended(docker_executor, monkeypatch):
+    from vericode.processes import run_bounded
+
+    docker_executor.limits = ExecutionLimits(wall_seconds=1)
+
+    def delayed_host(command, **kwargs):
+        if command[:2] == ["docker", "start"]:
+            kwargs["timeout"] = 30
+        return run_bounded(command, **kwargs)
+
+    monkeypatch.setattr("vericode.docker_executor.run_bounded", delayed_host)
+    source = (
+        "import subprocess, sys\n"
+        "def f():\n"
+        "    subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])\n"
+        "    while True: pass\n"
+    )
+    result = docker_executor.run(source, "from solution import f\ndef test_f(): f()")
+    assert result.status == "timeout", result
+    assert result.exit_code == 124
+    assert "container watchdog" in result.detail
+    assert result.cleanup_confirmed is True
+
+
+@pytest.mark.docker
+def test_binary_output_is_bounded_after_utf8_replacement(docker_executor):
+    result = docker_executor.run(
+        "import os\ndef f(): os.write(1, bytes([255]) * 65536)",
+        "from solution import f\ndef test_f(): f()",
+    )
+    assert result.status == "output_limit", result
+    assert result.output_truncated is True
+    assert len(result.output.encode("utf-8")) <= docker_executor.limits.output_bytes
     assert result.cleanup_confirmed is True

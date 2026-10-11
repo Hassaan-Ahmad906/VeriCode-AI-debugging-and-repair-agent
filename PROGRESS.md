@@ -130,8 +130,67 @@ reported CPU/memory/swap/PID support). No existing containers were changed.
   (1 pass/1 failure, exit 1) and `artifacts/day2-clamp-mock-patch.json` (2 passes,
   exit 0). Both cleanup checks succeeded; zero API spend. These are ignored local
   engineering artifacts, not final evaluation or live-model measurements.
-- Task 2 is recorded in `feat: expose isolated visible-test checks and bounded results`;
-  its SHA and push verification follow in the Task 3 entry.
+- Commit `4dd6a6b` pushed to `origin/master`; remote SHA verified.
 
-Next: Task 3 — inspect and probe privilege/resource restrictions, absence of host
-credentials/files/evaluator assets, network denial, and bounded tmpfs behaviour.
+### Task 3 — Verified isolation and fail-closed policy
+
+- Added worker probes for UID/GID, capability sets, no-new-privileges, seccomp,
+  network denial, absent sentinel host credentials/files/evaluator assets and
+  controller paths, read-only root, bounded tmpfs, and actual cgroup settings.
+- Process spawning hits the 32-PID limit; workspace filling hits ENOSPC; a large
+  allocation is recorded as Docker OOM/resource limit. Jobs are removed afterward.
+- Policy now rejects injected environment variables, changed harness/log settings,
+  and unsupported cgroup versions. Decoded binary output obeys the configured cap.
+- Added a trusted in-container Linux deadline, independent of the host watchdog;
+  its check extends the host deadline and spawns a descendant. Timeout remains a
+  separate outcome, and the full job is removed.
+- An early environment probe omitted pytest's metadata variables; the assertion
+  was corrected to include PYTEST_CURRENT_TEST/PYTEST_VERSION. A long delay also
+  affected early test runs; those elapsed times are not experiment latency data.
+  The final report supersedes the earlier failed isolation artifact.
+- Final engineering report: `artifacts/day2-final-checks.xml` (ignored local file):
+  104 passed, zero failures/errors/skips, including 17 explicit Docker checks.
+  Saved XML counts were verified. Earlier ordinary offline checks passed with
+  Docker cases skipped. `pip check`, whitespace review, and secret-pattern review
+  passed. No VeriCode containers remained after the final suite.
+- Final local runner image ID:
+  `sha256:cd84127ea2c5412a54c1e6cd1a33021ecfef5d93ecbc233e1d3f2f3681fccd8f`.
+  Compatibility label version 2 rejects earlier images lacking the container timer.
+  Resource settings, requirements, and unverified guarantees are in `docs/sandbox.md`.
+- Task 3 is recorded by `test: verify candidate isolation and independent execution deadlines`;
+  its final hash/push verification is reported at session close. A commit cannot
+  include its own final hash; use `git log --oneline -3` to see all Day 2 commits.
+
+### Day 2 completion and Day 3 starting point
+
+All three Day 2 acceptance criteria are implemented. Candidate code runs only in
+the constrained Docker path; default CLI/tests remain mock/offline. No paid model
+calls, external benchmarks, final evaluation, or release tag were used. Docker
+verification is local engineering evidence, not a complete security guarantee.
+
+Stop here; do not begin Day 3 automatically. At the next session:
+
+1. Read this log, inspect Git state/remote, and run offline tests. Ensure the local
+   runner image matches current source; rebuild and run explicit Docker checks.
+2. Implement bounded structured model responses/retries and provider usage logs.
+   Keep paid adapters disabled until an explicit acceptable spending cap exists.
+3. Implement direct repair A using the constrained candidate path, with malformed
+   response/forbidden target checks; do not expose evaluator data or filesystem tools.
+4. Add resumable batch JSON/JSONL logs that do not silently duplicate completed runs.
+   Preserve distinct mock, sandbox-smoke, pilot, and measured run kinds.
+5. Validate offline end-to-end operation; run a live pilot only if separately
+   authorized and budgeted with verified pricing and conservative accounting.
+
+PowerShell commands from the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+docker build --tag vericode-runner:day2 sandbox
+.\.venv\Scripts\python.exe -m vericode sandbox-info
+.\.venv\Scripts\python.exe -m vericode run-tests --task clamp --candidate mock --backend docker
+.\.venv\Scripts\python.exe -m pytest --run-docker -q
+```
+
+Understanding checks: Why must a timeout stop the whole container? Why can visible
+test success coexist with a remaining bug? What does a mock patch passing real
+tests establish about the model's repair ability?
