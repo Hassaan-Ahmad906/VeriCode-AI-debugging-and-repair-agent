@@ -85,3 +85,32 @@ Commands from the repository root (PowerShell):
 
 Understanding checks: Why are tokens null in a mock run? How do withheld tests
 differ from a final task split? Why is a temporary workspace not a sandbox?
+
+## 2026-10-11 — Day 2
+
+Inspection: clean `master`, unchanged verified GitHub remote, and no applicable
+`AGENTS.md`. Day 1 final commit `918c3c4` is present locally and on GitHub. All 49
+existing checks passed. Docker Desktop was stopped; starting it in the background
+made the Linux engine available (Docker 29.7.2, WSL2, cgroup v2, default seccomp,
+reported CPU/memory/swap/PID support). No existing containers were changed.
+
+### Task 1 — Bounded Docker runner
+
+- Added a digest-pinned Python image, version-pinned pytest dependencies, a trusted
+  parent harness, validated resource limits, pre-start policy inspection, bounded
+  controller subprocesses, and Docker-only execution. No host directories are
+  mounted; only source and visible-test text cross the job boundary.
+- Statuses distinguish assertions, collection errors, timeout, output/OOM limits,
+  and infrastructure failure. Cleanup removes the full container and is verified.
+- Checks: offline suite 61 passed, 4 Docker checks skipped; explicitly requested
+  runner checks 13 passed, including four live Docker cases (completion, exception,
+  collection error, timeout). Cleanup was confirmed for each live job.
+- Elevated pytest encountered a cache ownership warning; later elevated checks
+  disable pytest's cache provider. It did not affect test outcomes.
+- Container policy follows the official Docker documentation linked in
+  `docs/sandbox.md`. Read the documented timing and pytest-integrity limitations.
+- Task 1 is recorded in the commit `feat: add bounded Docker candidate execution`;
+  its SHA and push verification follow in the next task entry.
+
+Next: Task 2 — immutable visible-job inputs, CLI execution/results, and checks for
+output overflow, workspace safety, and cleanup failure handling.
