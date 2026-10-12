@@ -194,3 +194,31 @@ docker build --tag vericode-runner:day2 sandbox
 Understanding checks: Why must a timeout stop the whole container? Why can visible
 test success coexist with a remaining bug? What does a mock patch passing real
 tests establish about the model's repair ability?
+
+## 2026-10-12 — Day 3
+
+Inspection: clean `master`, no new `AGENTS.md`, verified GitHub remote/default
+branch unchanged. Final Day 2 commit `c039c2d` matches GitHub. Existing offline
+checks passed: 87 tests, 17 opt-in Docker checks skipped. Docker Desktop was
+stopped; it was started in the background and the trusted image rebuilt from the
+unchanged checked-in harness before explicit container checks.
+
+### Task 1 — Structured providers, retries, and usage
+
+- Added provider-neutral request/response/limit/usage contracts and a bounded
+  completion wrapper. The mock provider now produces JSON through that wrapper.
+- Only transient transport errors retry, with an unchanged prompt. Invalid
+  answers stop immediately. Every call contributes usage, including known charges
+  from failed calls; unknown totals stay null and known subtotals are separate.
+- Paid/network transports are rejected before calls. No live SDK, credentials,
+  pricing, or dollar-budget enforcement is configured. Adapter timeouts are an
+  explicit contract; see `docs/providers.md` for their limits.
+- Checks: offline suite 106 passed, 17 Docker checks skipped. The full Docker-enabled
+  suite also passed all 123 checks. Tests cover retry exhaustion, usage retention,
+  missing usage, malformed/oversized replies, forbidden targets, input limits,
+  disabled paid execution, and secret-bearing exception sanitisation.
+- Task 1 commit: `feat: validate model completions and log bounded transport usage`;
+  commit/push verification follows in the next task entry.
+
+Next: Task 2 — direct repair A, post-response visible checks, constrained patches,
+and explicit result statuses. Evaluation remains deferred to Day 5.
