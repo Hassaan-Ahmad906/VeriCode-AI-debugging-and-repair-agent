@@ -61,3 +61,16 @@ One usable response can therefore involve several actual model calls. Log all
 calls and known charges, including failures. Unknown token or cost totals are
 null; a known subtotal of zero does not establish a zero total. None of this
 makes A/B/C compute-matched simply because they share an upper limit.
+
+## Why checkpoint before a call?
+
+A controller can crash after sending a request but before saving its response.
+A durable start marks that uncertainty. Replaying it automatically could duplicate
+work or hide unknown charges. A durable completed record lets resume skip the
+task, including failures, while preserving the original experiment denominator.
+
+A fingerprint freezes the inputs and code used by a batch. Checksums detect
+accidental corruption but do not authenticate results. A directory lock prevents
+cooperating controllers from overlapping; it is not a distributed transaction.
+These are practical engineering controls for fair experiments, not perfect crash
+or determinism guarantees.

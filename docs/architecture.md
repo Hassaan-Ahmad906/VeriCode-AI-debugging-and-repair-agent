@@ -69,4 +69,12 @@ feed back to the provider. `run_config.py` records limits, backend, and provider
 selection. `direct_run.py` emits the patch, one attempt history, call ledger, and
 post-response visible outcomes. Invalid responses and invalid patches are separate.
 Default executor is mock; Docker is an explicit selection. Neither path loads
-evaluation assets. Strategies B/C and batch orchestration are separate work.
+evaluation assets. Strategies B/C are separate work.
+
+`batch.py` coordinates sequential tasks from an immutable manifest/configuration.
+`checkpoints.py` owns bounded JSON/JSONL persistence, checksums, and a directory
+lock. A durable start precedes model generation; a durable terminal event contains
+the outcome. Resume validates fingerprints and skips recorded outcomes without
+regenerating patches. Unknown starts and unconfirmed cleanup block replay. The
+batch stops on infrastructure failure and retains it as an outcome. Docker uses
+one frozen image ID for all pending tasks.

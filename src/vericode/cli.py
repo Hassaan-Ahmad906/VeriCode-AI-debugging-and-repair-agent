@@ -7,7 +7,8 @@ import json
 from pathlib import Path
 
 from vericode import __version__
-from vericode.datasets import TaskManifest
+from vericode.datasets import TaskManifest, read_json
+from vericode.batch import run_batch
 from vericode.experiments import run_mock_demo, write_run
 from vericode.docker_executor import DockerExecutor, SandboxUnavailable
 from vericode.jobs import run_visible_check
@@ -52,6 +53,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     repair.add_argument("--max-model-calls", type=int, default=3, help="transport call limit; one repair response")
     repair.add_argument("--max-output-tokens", type=int, default=2048)
     repair.add_argument("--output", type=Path, help="new JSON artifact; existing files are never overwritten")
+    batch = commands.add_parser("batch", help="run a fixed direct-repair batch and resume recorded outcomes")
+    batch.add_argument("--config", type=Path, default=Path("configs/offline_direct.json"))
+    batch.add_argument("--manifest", type=Path, default=Path("data/manifests/development.json"))
+    batch.add_argument("--data-root", type=Path, default=Path("data"))
+    batch.add_argument("--run-dir", type=Path, required=True)
+    batch.add_argument("--resume", action="store_true", help="skip completed outcomes; never replay uncertain started tasks")
     args = parser.parse_args(argv)
     try:
         if args.command == "list-tasks":
@@ -82,6 +89,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             if record["status"] in ("infrastructure_error", "transport_error", "transient_error", "paid_execution_disabled"):
                 return 2
             return 0 if record["status"] in ("candidate_ready", "visible_passed") else 1
+        elif args.command == "batch":
+            config = RunConfiguration.from_dict(read_json(args.config))
+            result = run_batch(args.data_root, args.manifest, config, args.run_dir, resume=args.resume)
+            print(json.dumps(result, indent=2, ensure_ascii=True, allow_nan=False))
+            if result["pending"] or result["outcomes"].get("infrastructure_error"):
+                return 2
+            return 0 if all(status in ("candidate_ready", "visible_passed") for status in result["outcomes"]) else 1
         elif args.command == "run-tests":
             if args.output and args.output.exists():
                 raise FileExistsError(f"output already exists: {args.output}")

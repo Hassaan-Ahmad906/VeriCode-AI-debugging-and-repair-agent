@@ -28,7 +28,7 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 
 - [x] Task 1: add structured provider responses, bounded API retries, and usage accounting.
 - [x] Task 2: implement A with constrained patches; reject forbidden paths and invalid output.
-- [ ] Task 3: add resumable batch logs without silent duplicates. Accept offline end-to-end
+- [x] Task 3: add resumable batch logs without silent duplicates. Accept offline end-to-end
   checks. Live pilot requires explicit spending authorization, configuration,
   verified prices, and conservative cost enforcement.
 

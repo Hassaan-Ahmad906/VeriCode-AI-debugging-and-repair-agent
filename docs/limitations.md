@@ -6,6 +6,10 @@
 - Direct repair A now works with scripted mock proposals. It observes visible tests
   only after proposal and cannot measure model ability. Network adapters and
   enforceable spending caps are absent; the transport timeout is an adapter contract.
+- Batch checkpoints provide conservative local resumption, not exactly-once remote
+  calls or authenticated provenance. Interrupted starts and stale locks require
+  inspection. Source-byte/runtime changes invalidate resume; immutable Docker images
+  must remain locally available. No final evaluation results are produced on Day 3.
 - Three hand-authored development fixtures are a small, nonrepresentative sample.
   Expected values were reviewed from specifications. Original/mock-patched clamp
   visible tests have now run in isolation. Evaluation fixtures have not run, and

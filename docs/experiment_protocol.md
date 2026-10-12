@@ -26,6 +26,8 @@ behaviour before defining a regression. Model-generated expectations require an
 independent reference or defensible property; record discarded invalid tests.
 
 Save configurations, task lists, prompts, model identifiers, dataset version,
-Git SHA, execution limits, and available seeds. Hosted models may remain
+Git SHA, execution limits, and available seeds. Day 3 batches additionally save
+source/task/configuration fingerprints and append-only start/outcome events.
+Resumption preserves terminal failures and blocks uncertain call replay. Hosted models may remain
 nondeterministic. Day 1 schema tests and mock demonstrations are engineering
 checks, not repair-performance results. No measured results exist yet.

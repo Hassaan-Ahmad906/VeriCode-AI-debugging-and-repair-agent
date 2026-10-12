@@ -30,6 +30,9 @@ record a hash, configured/reported model identifiers, and observed controller
 latency. Tokens and cost remain null when unknown. Known subtotals are separate;
 an unknown billed call makes the total cost unknown even if another call is priced.
 Mock calls have known zero API cost and unknown tokens.
+`model_calls` counts transport invocations/request attempts, including connection
+failures; it does not assert that the server completed an inference for each one.
+`repair_responses` separately counts answers that arrived, including invalid ones.
 
 Limits and usage records are engineering controls, not a dollar-budget mechanism.
 Network/paid transports are rejected before any call. Setting credentials or a

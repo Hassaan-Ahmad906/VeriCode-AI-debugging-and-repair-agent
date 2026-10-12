@@ -10,10 +10,11 @@ upper budget does not make these methods compute-matched.
 
 ## Status
 
-Day 3 is in progress: direct repair A, structured mock completions, per-call usage,
-and bounded Docker execution work. Paid API execution is disabled. No live-model experiment
+Day 3 is complete: direct repair A, structured mock completions, per-call usage,
+bounded Docker execution, and resumable batches work. Paid API execution is disabled. No live-model experiment
 or final evaluation has been performed. See [PLAN.md](PLAN.md) and
 [PROGRESS.md](PROGRESS.md) for acceptance criteria and the next session.
+The final Day 3 suite passed 153 engineering checks, including 19 Docker checks.
 
 ## Setup
 
@@ -130,6 +131,20 @@ adapter contract. See [provider boundary](docs/providers.md).
 visible passes, false for rejected/failed patches, and unknown for mock or
 unresolved execution. `evaluation` remains null until the independent evaluator
 is implemented. The `demo` command retains its original mock-only demonstration.
+
+Run all development tasks with a fixed configuration, then resume:
+
+```powershell
+.\.venv\Scripts\python.exe -m vericode batch --run-dir artifacts/my-direct-batch
+.\.venv\Scripts\python.exe -m vericode batch --run-dir artifacts/my-direct-batch --resume
+```
+
+The supplied [configuration](configs/offline_direct.json) selects mock models and
+mock execution. Completed outcomes are preserved, including failures; the second
+command adds zero calls after a finished run. Configuration, task, or runtime
+changes are rejected. Logs contain prompts, patches, call usage, and execution
+states. Read [checkpoint and recovery behaviour](docs/checkpoints.md) before
+resuming an interrupted run.
 
 Start with small, single-file Python functions and self-authored development
 fixtures. Repair-visible tests and evaluation-only tests are separate inputs.

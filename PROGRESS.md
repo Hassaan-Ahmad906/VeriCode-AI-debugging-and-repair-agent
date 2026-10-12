@@ -235,8 +235,69 @@ unchanged checked-in harness before explicit container checks.
 - Saved `artifacts/day3-direct-clamp.json`: one scripted call/response, 2 visible
   test passes, cleanup confirmed, zero API spend, and evaluation unknown. This is
   a local sandbox demonstration, not a live-model repair result.
-- Task 2 commit: `feat: implement direct repair with constrained post-response checks`;
-  its hash/push verification follows in the Task 3 entry.
+- Commit `64ef64f` pushed to `origin/master`; remote SHA verified.
 
-Next: Task 3 — fixed configuration/manifests and resumable batch logs that preserve
-completed outcomes and reject silent reruns or changed inputs.
+### Task 3 — Fixed resumable batches
+
+- Added versioned offline configuration, fixed-manifest batch CLI, runtime/task
+  fingerprints, frozen Docker images, directory locks, and bounded append-only
+  JSONL start/outcome records. Starts and outcomes are flushed/fsynced; completed
+  failures remain outcomes and are not regenerated on resume.
+- Changed configuration/task/runtime, torn/corrupt/duplicate events, uncertain
+  started calls, and unconfirmed cleanup block automatic replay. Storage capacity
+  is reserved before sending a call. Infrastructure failures halt the batch while
+  preserving the completed failure; remaining unstarted tasks can resume later.
+- Offline checks: 134 passed, 19 Docker checks skipped. An initial combined run
+  passed 152 checks but its first Docker batch task reported infrastructure failure.
+  The diagnostic batch rerun passed all three tasks and confirmed cleanup. Final
+  combined rerun passed all 153 checks, including 19 Docker checks; no case was
+  excluded or re-labelled. Saved XML confirms zero failures/errors/skips. Dependency,
+  whitespace, and secret-pattern checks passed.
+- `artifacts/day3-final-offline-batch` saved three scripted outcomes/calls; resume
+  added zero calls and skipped all three. API cost is known zero; token counts and
+  evaluation success remain unknown. Earlier development checkpoint snapshots are
+  retained; their old runtime/format fingerprints can legitimately reject resume.
+- Local engineering report: `artifacts/day3-final-checks.xml` (ignored). No paid
+  adapter, funding cap, live pilot, or measured model-performance experiment exists.
+- Cleanup verified for all generated `vericode-job-*` containers. An existing
+  stopped container outside that namespace was preserved because ownership was
+  not established.
+- This work session started on 2026-10-12 and crossed into 2026-10-13 in
+  Asia/Karachi. Day 3 is a work-session label, not a scheduled automation.
+- Task 3 commit: `feat: add durable resumable direct-repair batches`; final hash
+  and push verification are reported at session close. Use `git log --oneline -3`
+  for Day 3's commits; a commit cannot include its own final hash.
+
+### Day 3 completion and Day 4 starting point
+
+All three Day 3 acceptance criteria are implemented. The provider, direct strategy,
+and batch workflow operate offline; explicit Docker runs only visible tests. No
+evaluator assets are loaded by these repair paths. No paid API call or release tag
+was made. Measured LLM performance remains absent, and containers/checkpoints have
+the documented security, crash, and reproducibility limitations.
+
+Stop here; do not begin Day 4 automatically. At the next session:
+
+1. Read this log and inspect Git state/remotes, then run existing offline checks.
+2. Implement strategy B with bounded repair-visible feedback/retries using the
+   same provider, usage ledger, candidate validation, and isolated executor.
+3. Stop on visible success, identical proposals, exhausted attempts/calls, and
+   unrecoverable errors. Keep transport retries distinct from repair revisions.
+4. Add deterministic mock checks for successful revision, exhausted budgets,
+   malformed patches, and absence of evaluator information from model context.
+5. Extend recorded configuration and batch formats deliberately; preserve existing
+   Day 3 checkpoints rather than silently changing their experiment identity.
+
+PowerShell commands from the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m vericode repair --task clamp
+.\.venv\Scripts\python.exe -m vericode batch --run-dir artifacts/my-direct-batch
+.\.venv\Scripts\python.exe -m vericode batch --run-dir artifacts/my-direct-batch --resume
+.\.venv\Scripts\python.exe -m pytest --run-docker -q
+```
+
+Understanding checks: Why can one repair response involve multiple transport
+calls? Why is a completed failed patch skipped on resume? Why should a started
+task without an outcome remain uncertain instead of being automatically replayed?
