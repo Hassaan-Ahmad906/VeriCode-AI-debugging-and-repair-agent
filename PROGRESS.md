@@ -217,8 +217,26 @@ unchanged checked-in harness before explicit container checks.
   suite also passed all 123 checks. Tests cover retry exhaustion, usage retention,
   missing usage, malformed/oversized replies, forbidden targets, input limits,
   disabled paid execution, and secret-bearing exception sanitisation.
-- Task 1 commit: `feat: validate model completions and log bounded transport usage`;
-  commit/push verification follows in the next task entry.
+- Commit `c8bfdc7` pushed to `origin/master`; remote SHA verified.
 
-Next: Task 2 — direct repair A, post-response visible checks, constrained patches,
-and explicit result statuses. Evaluation remains deferred to Day 5.
+### Task 2 — Direct repair A
+
+- Added recorded configuration and a one-response strategy with constrained patch
+  validation. Visible execution occurs only after the model response and never
+  returns feedback. Invalid responses, invalid patches, visible failures, and
+  execution errors have distinct statuses. Unchanged proposals are recorded.
+- Added `repair` CLI with configurable model label/call/token limits, mock default,
+  explicit Docker selection, and JSON output. Candidate and usage are retained
+  if execution fails; evaluator input is never loaded.
+- Checks: offline 116 passed, 18 Docker checks skipped; targeted strategy tests
+  11 passed with Docker enabled. The first live check returned an infrastructure
+  error; the saved CLI check passed, and the diagnostic rerun passed. No test was
+  excluded or converted into a passing candidate outcome.
+- Saved `artifacts/day3-direct-clamp.json`: one scripted call/response, 2 visible
+  test passes, cleanup confirmed, zero API spend, and evaluation unknown. This is
+  a local sandbox demonstration, not a live-model repair result.
+- Task 2 commit: `feat: implement direct repair with constrained post-response checks`;
+  its hash/push verification follows in the Task 3 entry.
+
+Next: Task 3 — fixed configuration/manifests and resumable batch logs that preserve
+completed outcomes and reject silent reruns or changed inputs.

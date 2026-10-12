@@ -1,8 +1,11 @@
 # Current limitations
 
 - The local Docker runner and visible-test smoke checks work. There is still no
-  live model adapter, repair strategy A/B/C, independent scoring, or measured
+  live model adapter, repair strategy B/C, independent scoring, or measured
   live-model repair result. Mock execution must never report test passes.
+- Direct repair A now works with scripted mock proposals. It observes visible tests
+  only after proposal and cannot measure model ability. Network adapters and
+  enforceable spending caps are absent; the transport timeout is an adapter contract.
 - Three hand-authored development fixtures are a small, nonrepresentative sample.
   Expected values were reviewed from specifications. Original/mock-patched clamp
   visible tests have now run in isolation. Evaluation fixtures have not run, and

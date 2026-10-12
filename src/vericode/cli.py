@@ -11,6 +11,9 @@ from vericode.datasets import TaskManifest
 from vericode.experiments import run_mock_demo, write_run
 from vericode.docker_executor import DockerExecutor, SandboxUnavailable
 from vericode.jobs import run_visible_check
+from vericode.direct_run import run_direct
+from vericode.model_io import GenerationLimits
+from vericode.run_config import RunConfiguration
 from vericode.sandbox_policy import DEFAULT_IMAGE, ExecutionLimits
 from vericode.schemas import ValidationError
 
@@ -38,6 +41,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     checks.add_argument("--image", default=DEFAULT_IMAGE)
     checks.add_argument("--timeout", type=float, default=10.0, help="attached execution seconds (0.5-60)")
     checks.add_argument("--output", type=Path, help="new JSON artifact; existing files are never overwritten")
+    repair = commands.add_parser("repair", help="strategy A: one mock response, then optional Docker visible checks")
+    repair.add_argument("--task", default="clamp")
+    repair.add_argument("--data-root", type=Path, default=Path("data"))
+    repair.add_argument("--provider", choices=("mock",), default="mock")
+    repair.add_argument("--model", default="scripted-v1", help="configured provider model identifier; mock uses scripted responses")
+    repair.add_argument("--backend", choices=("mock", "docker"), default="mock")
+    repair.add_argument("--image", default=DEFAULT_IMAGE)
+    repair.add_argument("--timeout", type=float, default=10.0)
+    repair.add_argument("--max-model-calls", type=int, default=3, help="transport call limit; one repair response")
+    repair.add_argument("--max-output-tokens", type=int, default=2048)
+    repair.add_argument("--output", type=Path, help="new JSON artifact; existing files are never overwritten")
     args = parser.parse_args(argv)
     try:
         if args.command == "list-tasks":
@@ -55,6 +69,19 @@ def main(argv: Sequence[str] | None = None) -> int:
             executor = DockerExecutor(args.image)
             print(json.dumps({"available": True, "image": args.image, "image_id": executor.prepare(),
                               "limits": asdict(executor.limits)}, indent=2))
+        elif args.command == "repair":
+            if args.output and (args.output.exists() or args.output.is_symlink()):
+                raise FileExistsError(f"output already exists: {args.output}")
+            config = RunConfiguration(args.provider, args.model, args.backend, args.image,
+                                      GenerationLimits(output_tokens=args.max_output_tokens, max_transport_calls=args.max_model_calls),
+                                      ExecutionLimits(wall_seconds=args.timeout))
+            record = run_direct(args.data_root, args.task, config)
+            if args.output:
+                write_run(args.output, record)
+            print(json.dumps(record, indent=2, ensure_ascii=True, allow_nan=False))
+            if record["status"] in ("infrastructure_error", "transport_error", "transient_error", "paid_execution_disabled"):
+                return 2
+            return 0 if record["status"] in ("candidate_ready", "visible_passed") else 1
         elif args.command == "run-tests":
             if args.output and args.output.exists():
                 raise FileExistsError(f"output already exists: {args.output}")

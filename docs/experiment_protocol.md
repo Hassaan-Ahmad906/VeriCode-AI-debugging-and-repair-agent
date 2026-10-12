@@ -3,7 +3,8 @@
 Question: how much do execution feedback and additional test generation improve
 LLM-based program repair, relative to their cost?
 
-- A: one direct repair response, without execution feedback.
+- A: one direct repair response, without execution feedback. Implemented using
+  scripted mocks on Day 3; post-response visible checks do not cause revisions.
 - B: repair-visible execution feedback and bounded retries.
 - C: independently validated additional tests plus B's feedback loop.
 

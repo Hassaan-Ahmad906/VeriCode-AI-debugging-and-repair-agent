@@ -31,7 +31,8 @@ def preview_diff(task: RepairTask, candidate: Candidate) -> str:
         task.source.splitlines(), candidate.replacement_source.splitlines(),
         fromfile="a/solution.py", tofile="b/solution.py", lineterm="",
     )
-    return "\n".join(lines) + "\n"
+    preview = "\n".join(lines)
+    return preview + "\n" if preview else ""
 
 
 @contextmanager

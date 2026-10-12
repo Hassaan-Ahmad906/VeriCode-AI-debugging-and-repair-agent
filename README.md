@@ -10,8 +10,8 @@ upper budget does not make these methods compute-matched.
 
 ## Status
 
-Day 2 is complete: the CLI, mock pipeline, validated fixtures, bounded Docker
-execution, and isolation checks work. Paid API execution is disabled. No live-model experiment
+Day 3 is in progress: direct repair A, structured mock completions, per-call usage,
+and bounded Docker execution work. Paid API execution is disabled. No live-model experiment
 or final evaluation has been performed. See [PLAN.md](PLAN.md) and
 [PROGRESS.md](PROGRESS.md) for acceptance criteria and the next session.
 
@@ -108,6 +108,29 @@ Other environments must pass their own explicitly requested checks.
 
 ## Scope and safeguards
 
+Direct repair A makes one proposal, then observes visible tests without sending
+feedback to the model or requesting a revision:
+
+```powershell
+# Fully offline: patch ready, test outcomes unknown.
+.\.venv\Scripts\python.exe -m vericode repair --task clamp
+# Scripted mock response, followed by actual visible tests inside Docker.
+.\.venv\Scripts\python.exe -m vericode repair --task clamp --backend docker --output artifacts/direct.json
+```
+
+Choose an unused output filename. `--model` records the configured provider model
+identifier; with the mock provider it is a label for the same scripted responses.
+`--max-model-calls` bounds transport attempts (1-3), while malformed responses
+stop after their first answer. `--max-output-tokens` bounds the requested output.
+Every call, including failed transport calls with available usage, is logged.
+Unknown totals stay null; known subtotals are separate. The request timeout is an
+adapter contract. See [provider boundary](docs/providers.md).
+
+`agent_accepted` describes the controller's visible-suite decision. It is true for
+visible passes, false for rejected/failed patches, and unknown for mock or
+unresolved execution. `evaluation` remains null until the independent evaluator
+is implemented. The `demo` command retains its original mock-only demonstration.
+
 Start with small, single-file Python functions and self-authored development
 fixtures. Repair-visible tests and evaluation-only tests are separate inputs.
 The agent must never receive reference implementations, evaluator paths, or
@@ -125,5 +148,5 @@ proven correct.
 
 Read [architecture](docs/architecture.md), the [draft experiment protocol](docs/experiment_protocol.md),
 [limitations](docs/limitations.md), and [learning notes](docs/learning_notes.md).
-Strategies A/B/C, budgeted API adapters, independent evaluation, benchmark
+Strategies B/C, budgeted API adapters, independent evaluation, benchmark
 integration, analysis, and the UI are later sessions. This is not a release-ready system.

@@ -49,3 +49,15 @@ the controller blocks further work and reports the exact job name for recovery.
 
 The CLI smoke command demonstrates execution independently of model ability.
 A scripted mock patch passing real visible tests is still a scripted demonstration.
+
+## Direct repair and accounting
+
+Strategy A produces one repair response without execution feedback. Running
+visible tests afterward records an outcome; it does not revise the patch. A
+transport failure can be retried with the identical request, but a malformed
+answer is already a response and must not silently earn another try.
+
+One usable response can therefore involve several actual model calls. Log all
+calls and known charges, including failures. Unknown token or cost totals are
+null; a known subtotal of zero does not establish a zero total. None of this
+makes A/B/C compute-matched simply because they share an upper limit.

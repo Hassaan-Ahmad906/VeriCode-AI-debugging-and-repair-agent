@@ -54,4 +54,19 @@ from submitting more jobs.
 
 `run-tests` serializes an engineering smoke-check record. `sandbox-info` verifies
 prerequisites without executing candidate code. The older `demo` command remains
-mock-only. Actual repair strategies and final evaluator orchestration come later.
+mock-only. Final evaluator orchestration comes later.
+
+## Day 3 direct repair
+
+`model_io.py` separates provider contracts from adapters; `model_calls.py` bounds
+transport attempts and validates JSON. MockProvider uses this same path. The
+request exposes only repair-visible task fields. Call records distinguish
+configured/reported model IDs, unknown usage, known subtotals, and failures.
+
+`strategies.py` implements A: propose once, validate the sole replacement target,
+then create a visible job. No execution occurs before proposal; no observations
+feed back to the provider. `run_config.py` records limits, backend, and provider
+selection. `direct_run.py` emits the patch, one attempt history, call ledger, and
+post-response visible outcomes. Invalid responses and invalid patches are separate.
+Default executor is mock; Docker is an explicit selection. Neither path loads
+evaluation assets. Strategies B/C and batch orchestration are separate work.
