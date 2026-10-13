@@ -44,7 +44,8 @@ class VisibleFeedback:
         # Allowlist test observations, excluding controller paths, detail, image,
         # job identity, timing, and the runner's private protocol frames.
         output = "\n".join(line for line in execution.output.splitlines()
-                           if not line.startswith("VERICODE_RESULT="))
+                           if not line.startswith("VERICODE_RESULT=") and "generated xml file:" not in line)
+        output = output.replace("../opt/vericode::", "test_visible.py::")
         encoded = output.encode("utf-8")
         output = encoded[:byte_limit].decode("utf-8", errors="ignore")
         return cls(execution.mode, execution.status, execution.tests_passed,

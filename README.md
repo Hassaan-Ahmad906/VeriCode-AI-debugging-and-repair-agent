@@ -10,12 +10,12 @@ upper budget does not make these methods compute-matched.
 
 ## Status
 
-Day 4 is in progress: direct repair A, feedback-guided repair B, structured mock
+Day 4 is complete: direct repair A, feedback-guided repair B, structured mock
 completions, per-call usage, bounded Docker execution, and resumable batches work.
 Paid API execution is disabled. No live-model experiment
 or final evaluation has been performed. See [PLAN.md](PLAN.md) and
 [PROGRESS.md](PROGRESS.md) for acceptance criteria and the next session.
-Day 4's feedback-loop checks are being completed; the Day 3 suite passed 153 checks.
+The final Day 4 suite passed 207 engineering checks, including 22 Docker checks.
 
 ## Setup
 

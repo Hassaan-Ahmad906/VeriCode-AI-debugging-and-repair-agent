@@ -36,7 +36,7 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 
 - [x] Task 1: implement B with visible-test feedback and bounded attempts.
 - [x] Task 2: stop on visible success, repeated patches, budget exhaustion, or fatal errors.
-- Accept deterministic tests for revision, exhausted budget, malformed patches,
+- [x] Task 3: accept deterministic tests for revision, exhausted budget, malformed patches,
   and evaluator-information isolation.
 
 ## Day 5 — Additional tests and independent evaluation

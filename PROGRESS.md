@@ -339,3 +339,76 @@ task without an outcome remain uncertain instead of being automatically replayed
 - Task 2 commit: `feat: record feedback repair stopping and resumable workflows`.
   Next: exhaustive deterministic stopping/accounting/isolation cases and final
   Docker integrations. No Day 5 work started.
+
+### Task 3 — Deterministic revision, stopping, and isolation checks
+
+- Task 2 committed/pushed as `fd93b0d26452d8f96b96b1a144b13dd128910095`,
+  verified against the remote branch.
+- Added deterministic checks for revision success, last-call success, exhausted
+  attempts/calls, transient retry clipping, repeated originals/cycles, malformed
+  JSON/targets/AST/task IDs, retained last checked candidates, candidate resource
+  failures, sanitized adapter exceptions, and unconfirmed cleanup overriding passes.
+- Verified the exact request/feedback allowlist excludes controller/evaluator
+  sentinels; a repair run needs no evaluation tree. Mock acceptance stays unknown,
+  and environment credentials/spending caps cannot enable paid execution. B's
+  uncertain checkpoints and initial cleanup failures block automatic pending work.
+- A ten-attempt large-history check exceeds the former 2 MiB limit, fits the new
+  reserved 16 MiB record, and round-trips all usage/history without dropping entries.
+- Initial targeted Docker run passed the repair but failed one assertion expecting
+  `AssertionError` in pytest's short output. Corrected the assertion using observed
+  failure text. Also removed random XML report announcements and normalized the
+  harness-root test label from model feedback; original execution logs remain full.
+  The targeted rerun passed 19 checks, including three new Docker integrations.
+- Final checks: 185 passed/22 opt-in skips offline; all 207 passed with Docker in
+  80.14 seconds, no failures/errors/skips. Report: `artifacts/day4-final-checks.xml`
+  (ignored). Dependency consistency, whitespace, and secret-pattern reviews passed.
+- Verified no `vericode-job-*` containers remain; unrelated containers were preserved.
+- Final CLI smoke: original clamp failed, one scripted patch passed two visible
+  tests, cleanup confirmed, cost zero, tokens unknown, evaluation null. Saved as
+  `artifacts/day4-final-feedback-clamp.json`. Earlier smoke artifact is preserved.
+- `artifacts/day4-final-offline-batch` recorded three mock candidates/calls, cost
+  zero, unknown tokens/evaluation; resume skipped three, newly completed zero.
+  Docker batch integration used one call: the other two originals already passed
+  their weak visible suites. This is engineering evidence, not model performance.
+- Task 3 commit: `test: verify feedback stopping accounting and isolation`; final
+  hash/push verification reported at session close. Use `git log --oneline -3` for
+  the three Day 4 commits; a commit cannot include its own hash.
+
+### Day 4 completion and Day 5 starting point
+
+All Day 4 tasks are complete. A/B share structured providers, constrained patches,
+isolated execution, usage accounting, and durable fixed-manifest batches. B records
+bounded repair-visible feedback and stopping decisions. No evaluator data entered
+the repair workflow, no paid call was made, and no release tag was created. Real
+LLM performance and independent evaluation remain absent.
+
+Stop here; do not begin Day 5 automatically. At the next session:
+
+1. Read this log, inspect Git/remotes, and run existing offline checks.
+2. Implement C with generated-test validation and independently justified expected
+   outputs/properties. Record/discard invalid generated tests; model agreement alone
+   is insufficient. Preserve repair/evaluator separation when using a trusted oracle.
+3. Inspect original QuixBugs licensing, attribution, references, and test behaviour;
+   pin suitable content before importing. Record inconsistencies/exclusions and
+   freeze disjoint development/final manifests. No external benchmark is imported yet.
+4. Implement independent scoring in isolation after repair, without returning its
+   tests, paths, references, or feedback to the agent. Verify a deliberately overfitted
+   visible-pass candidate fails the independent suite and is scored accordingly.
+5. Commit/push each coherent Day 5 task, document actual evidence/limitations, and stop.
+
+PowerShell commands from the repository root (start Docker Desktop's Linux engine
+before Docker commands; choose unused artifact paths for a new run):
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m vericode feedback --task clamp
+docker build --tag vericode-runner:day2 sandbox
+.\.venv\Scripts\python.exe -m vericode feedback --task clamp --backend docker
+.\.venv\Scripts\python.exe -m vericode batch --config configs/offline_feedback.json --run-dir artifacts/my-feedback-batch
+.\.venv\Scripts\python.exe -m vericode batch --config configs/offline_feedback.json --run-dir artifacts/my-feedback-batch --resume
+.\.venv\Scripts\python.exe -m pytest --run-docker -q
+```
+
+Understanding checks: Why can one repair attempt consume several transport calls?
+Why can B accept an unchanged buggy original with zero calls? Why must evaluator
+feedback remain unavailable to the repair loop, even after visible success?
