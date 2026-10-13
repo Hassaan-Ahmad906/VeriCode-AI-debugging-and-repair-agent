@@ -69,7 +69,7 @@ feed back to the provider. `run_config.py` records limits, backend, and provider
 selection. `direct_run.py` emits the patch, one attempt history, call ledger, and
 post-response visible outcomes. Invalid responses and invalid patches are separate.
 Default executor is mock; Docker is an explicit selection. Neither path loads
-evaluation assets. Strategies B/C are separate work.
+evaluation assets. Strategy C is separate work.
 
 `batch.py` coordinates sequential tasks from an immutable manifest/configuration.
 `checkpoints.py` owns bounded JSON/JSONL persistence, checksums, and a directory
@@ -78,3 +78,18 @@ the outcome. Resume validates fingerprints and skips recorded outcomes without
 regenerating patches. Unknown starts and unconfirmed cleanup block replay. The
 batch stops on infrastructure failure and retains it as an outcome. Docker uses
 one frozen image ID for all pending tasks.
+
+## Day 4 feedback repair
+
+`feedback.py` implements B in plain Python. Initial visible execution precedes
+the first request; each revision receives the latest source and a bounded
+allowlist of visible status, counts, and test output. Controller details, job and
+image identities, and runner protocol frames are excluded. Test output remains
+untrusted data. No evaluator input or filesystem capability enters this request.
+
+Each request can use transport retries, capped by both provider limits and the
+remaining total call budget. Repair attempts and actual calls are distinct;
+call indices are global within the task. Every request and observed candidate
+execution is retained in typed history. Mock execution proposes once and stops
+with unknown acceptance; it cannot supply measured feedback. Existing direct
+request prompts and the order of strategy A remain unchanged.

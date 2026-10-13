@@ -69,14 +69,19 @@ class StructuredProvider:
         self.limits = limits or GenerationLimits()
         self.offline = transport.offline is True
 
-    def propose(self, request: RepairRequest) -> ModelResponse:
+    def propose(self, request: RepairRequest, *, max_transport_calls: int | None = None) -> ModelResponse:
         if not self.offline:
             raise ProviderFailure("paid_execution_disabled", (), "Paid/network model execution is disabled; configure a budgeted adapter first.")
+        call_limit = self.limits.max_transport_calls
+        if max_transport_calls is not None:
+            if type(max_transport_calls) is not int or not 1 <= max_transport_calls <= call_limit:
+                raise ValidationError("remaining transport calls: expected a positive limit within provider limits")
+            call_limit = max_transport_calls
         prompt = request.prompt()
         if len(prompt.encode("utf-8")) > self.limits.prompt_bytes:
             raise ProviderFailure("input_limit", (), "Repair prompt exceeds the configured byte limit before any model call.")
         calls = []
-        for index in range(1, self.limits.max_transport_calls + 1):
+        for index in range(1, call_limit + 1):
             started = monotonic()
             try:
                 raw = self.transport.complete(prompt, model=self.model,
@@ -87,7 +92,7 @@ class StructuredProvider:
                 usage = exc.usage if isinstance(exc, TransportError) and isinstance(exc.usage, Usage) else Usage()
                 status = "transient_error" if retryable else "transport_error"
                 calls.append(CallRecord(index, status, self.provider, self.model, None, usage, monotonic() - started))
-                if retryable and index < self.limits.max_transport_calls:
+                if retryable and index < call_limit:
                     continue
                 raise ProviderFailure(status, tuple(calls), "Model transport failed; details are omitted to avoid logging credentials.") from None
             usage = raw.usage if isinstance(raw, RawCompletion) and isinstance(raw.usage, Usage) else Usage()

@@ -102,7 +102,7 @@ class ModelProvider(Protocol):
     model: str
     limits: GenerationLimits
 
-    def propose(self, request: RepairRequest) -> ModelResponse: ...
+    def propose(self, request: RepairRequest, *, max_transport_calls: int | None = None) -> ModelResponse: ...
 
 
 def summarize_calls(calls: tuple[CallRecord, ...]) -> dict:

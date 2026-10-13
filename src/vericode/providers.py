@@ -25,7 +25,8 @@ class MockTransport:
 
     def complete(self, prompt: str, *, model: str, max_output_tokens: int,
                  timeout_seconds: float) -> RawCompletion:
-        task_id = json.loads(prompt.split("\n\n", 1)[1])["task_id"]
+        payload = json.loads(prompt.split("\n\n", 1)[1])
+        task_id = payload.get("task", payload)["task_id"]
         candidate = Candidate(task_id, "solution.py", _SCRIPTED_REPLACEMENTS[task_id])
         return RawCompletion(json.dumps(asdict(candidate)), Usage(cost_usd=0.0), model)
 
@@ -36,10 +37,10 @@ class MockProvider(StructuredProvider):
     def __init__(self, model: str = "scripted-v1", limits: GenerationLimits | None = None):
         super().__init__(MockTransport(), provider="mock", model=model, limits=limits)
 
-    def propose(self, request: RepairRequest) -> ModelResponse:
+    def propose(self, request: RepairRequest, *, max_transport_calls: int | None = None) -> ModelResponse:
         task = request.task
         if task.split != "development" or task.dataset_version != "self-authored-v1":
             raise ValidationError("mock provider supports only self-authored-v1 development tasks")
         if task.task_id not in _SCRIPTED_REPLACEMENTS:
             raise ValidationError(f"mock provider has no scripted response for {task.task_id!r}")
-        return super().propose(request)
+        return super().propose(request, max_transport_calls=max_transport_calls)

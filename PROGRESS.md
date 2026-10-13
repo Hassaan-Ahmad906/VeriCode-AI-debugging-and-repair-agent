@@ -301,3 +301,22 @@ PowerShell commands from the repository root:
 Understanding checks: Why can one repair response involve multiple transport
 calls? Why is a completed failed patch skipped on resume? Why should a started
 task without an outcome remain uncertain instead of being automatically replayed?
+
+## Day 4 — 2026-10-14 (Asia/Karachi)
+
+### Task 1 — Bounded feedback-guided core
+
+- Inspected the clean default branch, verified the user-supplied GitHub remote,
+  and passed the existing 134 offline checks (19 Docker checks opt-in).
+- Added strategy B: initial visible observation, latest-source revisions, bounded
+  feedback projection, typed history, and global call accounting. Per-response
+  transport retry limits are clipped to the remaining shared call budget.
+- Only repair-visible contents enter requests; controller details/identities and
+  runner protocol frames are excluded. Mock execution remains not_executed and
+  stops after one response with unknown acceptance. Paid providers stay disabled.
+- Checks: 137 offline checks passed, 19 Docker checks skipped; whitespace review
+  passed. No candidate or test text executed on the host. Docker Desktop was
+  started in the background for subsequent integration verification.
+- Task 1 commit: `feat: implement bounded feedback-guided repair`; hash and push
+  verification reported after committing. Next: repeated-patch stopping and
+  recorded CLI/batch integration, then the complete stopping/isolation test matrix.
