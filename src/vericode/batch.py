@@ -1,4 +1,4 @@
-"""Fixed-manifest direct-repair batches with conservative resumption."""
+"""Fixed-manifest repair batches with conservative resumption."""
 
 from dataclasses import asdict
 import hashlib
@@ -9,6 +9,7 @@ import platform
 from vericode.checkpoints import Checkpoint, fingerprint, locked_directory
 from vericode.datasets import TaskManifest
 from vericode.direct_run import make_executor, record_direct_task
+from vericode.feedback_run import record_feedback_task
 from vericode.docker_executor import DockerExecutor
 from vericode.experiments import _git_revision
 from vericode.run_config import RunConfiguration
@@ -47,6 +48,7 @@ def _summary(checkpoint: Checkpoint, records: dict, total: int, skipped: int) ->
         usage[key] = (math.fsum(values) if key == "cost_usd" else sum(values)) if all(value is not None for value in values) else None
         usage[f"known_{key}"] = math.fsum(known) if key == "cost_usd" else sum(known)
     return {"schema_version": 1, "batch_id": checkpoint.batch_id,
+            "strategy": checkpoint.metadata["identity"]["configuration"]["strategy"],
             "run_kind": "mock" if checkpoint.metadata["identity"]["configuration"]["backend"] == "mock" else "sandbox_smoke",
             "task_count": total, "completed": len(records), "newly_completed": len(records) - skipped,
             "skipped_completed": skipped, "pending": total - len(records), "outcomes": outcomes,
@@ -71,7 +73,8 @@ def run_batch(data_root: Path, manifest_path: Path, config: RunConfiguration, di
         checkpoint = Checkpoint(directory, identity, resume=resume, image_id=image_id)
         records = checkpoint.completed(manifest.task_ids)
         for task_id, record in records.items():
-            if record.get("configuration") != config.to_dict() or record.get("strategy") != "direct" or record.get("schema_version") != 1:
+            if (record.get("configuration") != config.to_dict() or record.get("strategy") != config.strategy
+                or record.get("schema_version") != config.to_dict()["schema_version"]):
                 raise ValidationError(f"saved outcome for {task_id} has incompatible configuration")
             if _unconfirmed_cleanup(record, config):
                 raise ValidationError(f"saved Docker cleanup for {task_id} is unconfirmed; resolve it before further jobs")
@@ -89,7 +92,8 @@ def run_batch(data_root: Path, manifest_path: Path, config: RunConfiguration, di
                 raise ValidationError("recorded Docker image is unavailable or mismatched")
         for task in pending:
             started = checkpoint.start(task.task_id)  # fsync before any model call.
-            record = record_direct_task(task, config, executor)
+            record = (record_feedback_task(task, config, executor) if config.strategy == "feedback"
+                      else record_direct_task(task, config, executor))
             record["batch_id"] = checkpoint.batch_id
             record["runtime"] = identity["runtime"]
             checkpoint.finish(started, record)  # Terminal failures are outcomes too.

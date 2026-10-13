@@ -35,7 +35,7 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 ## Day 4 — Feedback-guided repair
 
 - [x] Task 1: implement B with visible-test feedback and bounded attempts.
-- Stop on visible success, repeated patches, budget exhaustion, or fatal errors.
+- [x] Task 2: stop on visible success, repeated patches, budget exhaustion, or fatal errors.
 - Accept deterministic tests for revision, exhausted budget, malformed patches,
   and evaluator-information isolation.
 

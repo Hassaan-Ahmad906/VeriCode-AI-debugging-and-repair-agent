@@ -74,3 +74,18 @@ accidental corruption but do not authenticate results. A directory lock prevents
 cooperating controllers from overlapping; it is not a distributed transaction.
 These are practical engineering controls for fair experiments, not perfect crash
 or determinism guarantees.
+
+## Feedback and stopping
+
+B observes visible tests before its first repair and after each valid candidate.
+A new repair prompt includes the latest source and bounded visible failure;
+a transport retry sends the identical prompt. Both consume actual calls, but
+only new repair requests consume repair attempts. A final-call transient error
+is still a transport failure; a used-up budget never grants another call.
+
+Stopping on an already-passing original can save every model call while leaving
+a bug untouched. Weak visible tests explain this result. Repeating any previously
+seen exact source cannot yield new deterministic test evidence, so stop before
+running it again. Log that response's usage and preserve the last checked patch.
+Stopping rules bound effort; only an independent evaluator can assess whether
+visible acceptance overfits the available tests.

@@ -1,6 +1,8 @@
 from dataclasses import asdict
 import json
 
+import pytest
+
 from vericode.datasets import load_task
 from vericode.feedback import FeedbackLimits, feedback_repair
 from vericode.jobs import MockJobExecutor
@@ -101,3 +103,49 @@ def test_mock_has_no_measured_feedback_or_acceptance(data_root):
     assert outcome.initial_execution.status == "not_executed"
     assert outcome.execution.status == "not_executed"
     assert len(outcome.calls) == 1 and len(outcome.history) == 1
+
+
+def test_repeated_patch_stops_without_reexecuting_and_retains_last_tested_candidate(data_root):
+    task = load_task(data_root / "repair", "clamp")
+    wrong = "def clamp(value, lower, upper):\n    return lower\n"
+    transport = ScriptedTransport([raw(task, wrong), raw(task, wrong)])
+    executor = ScriptedExecutor([FAILED, FAILED])
+    outcome = feedback_repair(task, provider(transport), executor)
+    assert outcome.status == "repeated_patch" and outcome.agent_accepted is False
+    assert len(executor.jobs) == 2 and len(outcome.calls) == 2
+    assert outcome.candidate.replacement_source == wrong
+    assert outcome.history[-1].execution is None
+
+
+def test_distinct_failed_patches_exhaust_attempts(data_root):
+    task = load_task(data_root / "repair", "clamp")
+    transport = ScriptedTransport([raw(task, f"def clamp(value, lower, upper):\n    return {number}\n") for number in (0, 1)])
+    executor = ScriptedExecutor([FAILED, FAILED, FAILED])
+    outcome = feedback_repair(task, provider(transport), executor, FeedbackLimits(max_attempts=2))
+    assert outcome.status == "attempt_budget_exhausted" and outcome.agent_accepted is False
+    assert len(outcome.history) == 2 and len(outcome.calls) == 2 and len(executor.jobs) == 3
+
+
+def test_original_visible_success_uses_zero_model_calls(data_root):
+    task = load_task(data_root / "repair", "sum_positive")
+    transport = ScriptedTransport([])
+    executor = ScriptedExecutor([PASSED])
+    outcome = feedback_repair(task, provider(transport), executor)
+    assert outcome.status == "visible_passed" and outcome.agent_accepted is True
+    assert outcome.candidate.replacement_source == task.source and outcome.patch == ""
+    assert not outcome.calls and not outcome.history and not transport.prompts
+    assert len(executor.jobs) == 1
+
+
+@pytest.mark.parametrize("results", [
+    [ExecutionResult("sandbox", "infrastructure_error", cleanup_confirmed=True)],
+    [FAILED, ExecutionResult("sandbox", "infrastructure_error", cleanup_confirmed=False)],
+])
+def test_infrastructure_failure_stops_without_another_request(data_root, results):
+    task = load_task(data_root / "repair", "clamp")
+    transport = ScriptedTransport([raw(task, "def clamp(value, lower, upper):\n    return lower\n")])
+    executor = ScriptedExecutor(results)
+    outcome = feedback_repair(task, provider(transport), executor)
+    assert outcome.status == "infrastructure_error" and outcome.agent_accepted is None
+    assert len(transport.prompts) == len(results) - 1
+    assert len(executor.jobs) == len(results)

@@ -125,6 +125,7 @@ def feedback_repair(task: RepairTask, provider: ModelProvider, executor: Candida
         return finish("visible_passed", "Original source already passes visible tests; no repair requested.", True)
 
     current_source = task.source
+    seen_sources = {current_source}
     for attempt in range(1, limits.max_attempts + 1):
         remaining = limits.max_model_calls - len(calls)
         if remaining <= 0:
@@ -161,6 +162,11 @@ def feedback_repair(task: RepairTask, provider: ModelProvider, executor: Candida
         except ValidationError as exc:
             history.append(FeedbackAttempt(attempt, prompt, "invalid_patch", response.candidate, None, indices))
             return finish("invalid_patch", str(exc), False)
+        if response.candidate.replacement_source in seen_sources:
+            history.append(FeedbackAttempt(attempt, prompt, "repeated_patch", response.candidate, None, indices))
+            accepted = False if execution.status in ("failed", "test_error") else None
+            return finish("repeated_patch", "An identical source was already observed; no duplicate execution submitted.", accepted)
+        seen_sources.add(response.candidate.replacement_source)
         candidate = response.candidate
         patch = proposed_patch
         current_source = candidate.replacement_source

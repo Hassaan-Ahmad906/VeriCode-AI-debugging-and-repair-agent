@@ -5,7 +5,10 @@ LLM-based program repair, relative to their cost?
 
 - A: one direct repair response, without execution feedback. Implemented using
   scripted mocks on Day 3; post-response visible checks do not cause revisions.
-- B: repair-visible execution feedback and bounded retries.
+- B: repair-visible execution feedback and bounded retries, implemented on Day 4.
+  Initial visible success returns unchanged with zero calls. Exact repeated source,
+  malformed output/patches, exhausted attempts/calls, and infrastructure failures
+  stop. Candidate test errors/time/output/resource limits may inform a revision.
 - C: independently validated additional tests plus B's feedback loop.
 
 Record actual model calls, attempts, input/output tokens when supplied, latency,
@@ -31,3 +34,11 @@ source/task/configuration fingerprints and append-only start/outcome events.
 Resumption preserves terminal failures and blocks uncertain call replay. Hosted models may remain
 nondeterministic. Day 1 schema tests and mock demonstrations are engineering
 checks, not repair-performance results. No measured results exist yet.
+
+B's default ceiling is three repair attempts, six total transport calls, and three
+transport calls per attempt, clipped to remaining calls. Logs retain initial
+execution and each request, candidate, execution, and call index. Defaults are
+engineering demonstration limits; freeze experimental budgets before final runs.
+Mock execution supplies no observed feedback and stops after one candidate with
+unknown acceptance. Scripted responses tested inside Docker are sandbox smoke
+checks. No A/B effect size or model-performance comparison can be inferred.

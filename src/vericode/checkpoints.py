@@ -11,7 +11,7 @@ from uuid import uuid4
 from vericode.datasets import _unique_object
 from vericode.schemas import ValidationError, require_fields, require_version
 
-MAX_LINE_BYTES = 2 * 1024 * 1024
+MAX_LINE_BYTES = 16 * 1024 * 1024  # B retains up to ten bounded request/execution pairs.
 MAX_JOURNAL_BYTES = 64 * 1024 * 1024
 
 

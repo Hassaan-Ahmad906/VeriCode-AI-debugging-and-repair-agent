@@ -10,11 +10,12 @@ upper budget does not make these methods compute-matched.
 
 ## Status
 
-Day 3 is complete: direct repair A, structured mock completions, per-call usage,
-bounded Docker execution, and resumable batches work. Paid API execution is disabled. No live-model experiment
+Day 4 is in progress: direct repair A, feedback-guided repair B, structured mock
+completions, per-call usage, bounded Docker execution, and resumable batches work.
+Paid API execution is disabled. No live-model experiment
 or final evaluation has been performed. See [PLAN.md](PLAN.md) and
 [PROGRESS.md](PROGRESS.md) for acceptance criteria and the next session.
-The final Day 3 suite passed 153 engineering checks, including 19 Docker checks.
+Day 4's feedback-loop checks are being completed; the Day 3 suite passed 153 checks.
 
 ## Setup
 
@@ -146,6 +147,35 @@ changes are rejected. Logs contain prompts, patches, call usage, and execution
 states. Read [checkpoint and recovery behaviour](docs/checkpoints.md) before
 resuming an interrupted run.
 
+Strategy B runs the original visible suite before proposing, then revises using
+only the latest source and bounded visible feedback:
+
+```powershell
+# Offline: one scripted candidate; no measured feedback or acceptance.
+.\.venv\Scripts\python.exe -m vericode feedback --task clamp
+# Docker: original clamp fails; the scripted candidate passes two visible tests.
+.\.venv\Scripts\python.exe -m vericode feedback --task clamp --backend docker --output artifacts/feedback.json
+# Fixed offline B batch, followed by resume with zero new calls.
+.\.venv\Scripts\python.exe -m vericode batch --config configs/offline_feedback.json --run-dir artifacts/my-feedback-batch
+.\.venv\Scripts\python.exe -m vericode batch --config configs/offline_feedback.json --run-dir artifacts/my-feedback-batch --resume
+```
+
+B defaults to at most three repair attempts and six total transport calls, with
+at most three calls per attempt. Set `--max-attempts`, `--max-model-calls`, and
+`--max-transport-calls` separately. `--feedback-bytes` caps visible output sent to
+each request. Records retain the initial observation, every prompt/proposal/check,
+and globally numbered calls. Malformed answers or patches stop without executing
+them; repeated exact source stops without another execution. Previously observed
+source, including the original, counts as repeated. Timeouts, resource limits,
+output limits, and test errors may inform a bounded revision; infrastructure or
+unconfirmed cleanup stops immediately.
+
+An already-passing original returns unchanged with zero calls. The sum/vowel
+fixtures demonstrate why this is only visible-suite acceptance: their visible
+tests miss the bug. B configuration and records use schema 2; A retains schema 1.
+Use a new batch directory after code/configuration changes; old Day 3 snapshots
+remain preserved and can reject resume because their runtime fingerprint differs.
+
 Start with small, single-file Python functions and self-authored development
 fixtures. Repair-visible tests and evaluation-only tests are separate inputs.
 The agent must never receive reference implementations, evaluator paths, or
@@ -163,5 +193,5 @@ proven correct.
 
 Read [architecture](docs/architecture.md), the [draft experiment protocol](docs/experiment_protocol.md),
 [limitations](docs/limitations.md), and [learning notes](docs/learning_notes.md).
-Strategies B/C, budgeted API adapters, independent evaluation, benchmark
+Strategy C, budgeted API adapters, independent evaluation, benchmark
 integration, analysis, and the UI are later sessions. This is not a release-ready system.

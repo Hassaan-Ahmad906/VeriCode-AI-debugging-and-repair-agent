@@ -13,8 +13,10 @@ from vericode.experiments import run_mock_demo, write_run
 from vericode.docker_executor import DockerExecutor, SandboxUnavailable
 from vericode.jobs import run_visible_check
 from vericode.direct_run import run_direct
+from vericode.feedback_run import run_feedback
+from vericode.feedback import FeedbackLimits
 from vericode.model_io import GenerationLimits
-from vericode.run_config import RunConfiguration
+from vericode.run_config import FeedbackConfiguration, RunConfiguration
 from vericode.sandbox_policy import DEFAULT_IMAGE, ExecutionLimits
 from vericode.schemas import ValidationError
 
@@ -43,17 +45,23 @@ def main(argv: Sequence[str] | None = None) -> int:
     checks.add_argument("--timeout", type=float, default=10.0, help="attached execution seconds (0.5-60)")
     checks.add_argument("--output", type=Path, help="new JSON artifact; existing files are never overwritten")
     repair = commands.add_parser("repair", help="strategy A: one mock response, then optional Docker visible checks")
-    repair.add_argument("--task", default="clamp")
-    repair.add_argument("--data-root", type=Path, default=Path("data"))
-    repair.add_argument("--provider", choices=("mock",), default="mock")
-    repair.add_argument("--model", default="scripted-v1", help="configured provider model identifier; mock uses scripted responses")
-    repair.add_argument("--backend", choices=("mock", "docker"), default="mock")
-    repair.add_argument("--image", default=DEFAULT_IMAGE)
-    repair.add_argument("--timeout", type=float, default=10.0)
+    feedback = commands.add_parser("feedback", help="strategy B: bounded visible-feedback repair; mock by default")
+    for command in (repair, feedback):
+        command.add_argument("--task", default="clamp")
+        command.add_argument("--data-root", type=Path, default=Path("data"))
+        command.add_argument("--provider", choices=("mock",), default="mock")
+        command.add_argument("--model", default="scripted-v1", help="configured model identifier; mock uses scripted responses")
+        command.add_argument("--backend", choices=("mock", "docker"), default="mock")
+        command.add_argument("--image", default=DEFAULT_IMAGE)
+        command.add_argument("--timeout", type=float, default=10.0)
+        command.add_argument("--max-output-tokens", type=int, default=2048)
+        command.add_argument("--output", type=Path, help="new JSON artifact; existing files are never overwritten")
     repair.add_argument("--max-model-calls", type=int, default=3, help="transport call limit; one repair response")
-    repair.add_argument("--max-output-tokens", type=int, default=2048)
-    repair.add_argument("--output", type=Path, help="new JSON artifact; existing files are never overwritten")
-    batch = commands.add_parser("batch", help="run a fixed direct-repair batch and resume recorded outcomes")
+    feedback.add_argument("--max-model-calls", type=int, default=6, help="total transport calls across all repair attempts (1-30)")
+    feedback.add_argument("--max-attempts", type=int, default=3, help="repair attempts (1-10), separate from transport retries")
+    feedback.add_argument("--max-transport-calls", type=int, default=3, help="transport calls per repair attempt (1-3)")
+    feedback.add_argument("--feedback-bytes", type=int, default=8192, help="visible output bytes per request (256-16384)")
+    batch = commands.add_parser("batch", help="run a fixed repair batch and resume recorded outcomes")
     batch.add_argument("--config", type=Path, default=Path("configs/offline_direct.json"))
     batch.add_argument("--manifest", type=Path, default=Path("data/manifests/development.json"))
     batch.add_argument("--data-root", type=Path, default=Path("data"))
@@ -76,17 +84,23 @@ def main(argv: Sequence[str] | None = None) -> int:
             executor = DockerExecutor(args.image)
             print(json.dumps({"available": True, "image": args.image, "image_id": executor.prepare(),
                               "limits": asdict(executor.limits)}, indent=2))
-        elif args.command == "repair":
+        elif args.command in ("repair", "feedback"):
             if args.output and (args.output.exists() or args.output.is_symlink()):
                 raise FileExistsError(f"output already exists: {args.output}")
-            config = RunConfiguration(args.provider, args.model, args.backend, args.image,
-                                      GenerationLimits(output_tokens=args.max_output_tokens, max_transport_calls=args.max_model_calls),
-                                      ExecutionLimits(wall_seconds=args.timeout))
-            record = run_direct(args.data_root, args.task, config)
+            generation = GenerationLimits(output_tokens=args.max_output_tokens,
+                                          max_transport_calls=args.max_model_calls if args.command == "repair" else args.max_transport_calls)
+            execution = ExecutionLimits(wall_seconds=args.timeout)
+            if args.command == "feedback":
+                config = FeedbackConfiguration(args.provider, args.model, args.backend, args.image, generation, execution,
+                                               FeedbackLimits(args.max_attempts, args.max_model_calls, args.feedback_bytes))
+                record = run_feedback(args.data_root, args.task, config)
+            else:
+                config = RunConfiguration(args.provider, args.model, args.backend, args.image, generation, execution)
+                record = run_direct(args.data_root, args.task, config)
             if args.output:
                 write_run(args.output, record)
             print(json.dumps(record, indent=2, ensure_ascii=True, allow_nan=False))
-            if record["status"] in ("infrastructure_error", "transport_error", "transient_error", "paid_execution_disabled"):
+            if record["status"] in ("infrastructure_error", "provider_error", "transport_error", "transient_error", "paid_execution_disabled"):
                 return 2
             return 0 if record["status"] in ("candidate_ready", "visible_passed") else 1
         elif args.command == "batch":

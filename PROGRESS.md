@@ -320,3 +320,22 @@ task without an outcome remain uncertain instead of being automatically replayed
 - Task 1 commit: `feat: implement bounded feedback-guided repair`; hash and push
   verification reported after committing. Next: repeated-patch stopping and
   recorded CLI/batch integration, then the complete stopping/isolation test matrix.
+
+### Task 2 — Stops and recorded workflows
+
+- Task 1 committed/pushed as `f171646715645b4091607e1c85703bf93eae5f35`,
+  verified against the remote branch.
+- Added exact repeated-source/cycle detection before duplicate execution. Initial
+  visible success returns unchanged with zero calls. Fatal errors/unconfirmed
+  cleanup, malformed replies/patches, and exhausted attempts/calls stop explicitly.
+- Added `feedback` CLI and versioned B configuration/records, initial observations,
+  full request/candidate/execution history, and resumable B batches. Direct schema 1
+  remains intact; B uses schema 2, journal envelope 1. Raised bounded journal line
+  capacity to 16 MiB for up to ten bounded histories; total journal stays 64 MiB.
+- Checks: 146 offline checks passed, 19 Docker checks skipped. Docker CLI smoke:
+  original clamp failed, one scripted response passed both visible tests, cleanup
+  confirmed, one mock call, API cost zero, tokens unknown, evaluation null. Artifact:
+  `artifacts/day4-feedback-clamp.json` (ignored). No live-model result is implied.
+- Task 2 commit: `feat: record feedback repair stopping and resumable workflows`.
+  Next: exhaustive deterministic stopping/accounting/isolation cases and final
+  Docker integrations. No Day 5 work started.

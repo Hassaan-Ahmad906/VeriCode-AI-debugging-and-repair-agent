@@ -39,3 +39,12 @@ Network/paid transports are rejected before any call. Setting credentials or a
 spending-cap environment variable does not enable them. A future live adapter
 requires explicit budget configuration, verified pricing, conservative spending
 enforcement, and tests before a pilot. No model/provider SDK dependency is added.
+
+Strategy B uses a distinct `feedback-v1` prompt with the repair task, latest source,
+attempt number, and visible feedback. Feedback is an allowlist of execution mode,
+status, counts, and byte-bounded test output. Controller details/identities and
+protocol frames are omitted. The sandbox receives only source and visible tests;
+no evaluator tests, filesystem paths, or reference files are loaded. Test output
+is still untrusted, and prompt wording is not a prompt-injection guarantee.
+Each B request supplies a smaller transport-call cap when its total budget is
+nearly used. A's `repair-v1` request shape and one-response semantics are preserved.

@@ -37,7 +37,8 @@ require a new directory. Raw source bytes are fingerprinted; even line-ending
 changes can invalidate resumption. Docker jobs use the recorded immutable image,
 including on resume if its original tag moved. A missing old image blocks work.
 
-Journal lines are bounded to 2 MiB, the journal to 64 MiB, and batches to 100 tasks.
+Journal lines are bounded to 16 MiB (including B's bounded history), the journal
+to 64 MiB, and batches to 100 tasks.
 Space for a maximum-sized terminal record is reserved before starting a task.
 Writes flush and fsync. Checksums detect corruption, not authenticated provenance;
 files and the host controller remain trusted. Filesystem failures or crashes can
@@ -60,4 +61,13 @@ retaining that failure. It never silently retries the completed failure.
 
 Exit codes: 0 for completed mock/visible-pass batches, 1 for completed batches
 containing rejected/failed outcomes, and 2 for infrastructure, pending work, or
-checkpoint/configuration errors. Evaluation remains null in all Day 3 records.
+checkpoint/configuration errors. Evaluation remains null in A/B repair records.
+
+Use `--config configs/offline_feedback.json` and a new run directory for B. Its
+configuration and task records are schema 2, while direct configuration/records
+retain schema 1. The journal envelope remains schema 1 and fingerprints the full
+strategy configuration. B saves initial execution plus every request, candidate,
+execution, and global call indices. A completed B outcome is skipped on resume
+under the same rules, including failure and zero-call original-source success.
+Day 3 snapshots are preserved; changed runtime fingerprints intentionally block
+resume after implementation updates. There is no automatic format migration.
