@@ -553,3 +553,83 @@ Day 7; no paid model adapter or live spending is authorized.
   funded pilot, live-model comparison, or generalisation evidence.
 - Commit: `data: preserve reviewed offline study evidence`; next traceable tables,
   standalone plots, failure analysis, final validation and stop before Day 7.
+
+### Day 6 task 3 — Traceable tables, plots and failure analysis
+
+- Task 2 pushed/verified: `174fecacfdcd28040859e07642d50d41ca9de614`.
+- Added historical-evidence analysis with byte/repair-score-link validation and
+  call-ledger reconciliation, duplicate-protocol rejection, complete expected task
+  matrices, separate protocol/split/method groups and explicit missing outcomes.
+- Exported 18 task rows, six method summaries and 11 failure cases with exact
+  payload hashes, journal hashes and event lines. Unknown tokens remain unknown;
+  zero-call runs consumed none. Costs are API-only, not local compute pricing.
+- Exported standalone SVG/PNG figures using optional pinned Matplotlib 3.10.8;
+  actual plotting dependency versions and analysis source/runtime hashes are saved.
+  Visually reviewed the figures and corrected overlapping legend/title placement.
+  Core CLI/runtime still has no mandatory third-party dependency.
+- Report: `reports/day6/analysis/report.md`; complete CSV/JSON/figures/checksums and
+  original evidence are intentionally versioned. Every reported row links to a
+  saved event. Verified committed Git evidence bytes, all output hashes, and exact
+  final analysis source/runtime fingerprints. No paid or measured LLM results.
+- Checks: 228 offline passed, 26 Docker opt-in skips. Final full run passed all
+  254 in 151.46 seconds, including 26 Docker checks, zero failures/errors/skips.
+  XML: `artifacts/day6-final-checks.xml` (ignored). Six targeted analysis checks,
+  dependency consistency, whitespace and secret-pattern reviews passed.
+- Final staged lint found trailing path-line spaces emitted by Matplotlib's SVG
+  backend. Normalized equivalent SVG whitespace before checksumming, preserved the
+  earlier generated report under ignored artifacts, regenerated the report, and
+  re-passed all six analysis checks. Repair/execution behaviour was unchanged.
+- This authorized two-work-session run began on 2026-10-15 and crossed into
+  2026-10-16 in Asia/Karachi. Day labels describe work sessions, not scheduled jobs.
+- Commit: `feat: add traceable demonstration analysis and figures`; final hash
+  and push verification reported at session close. Use `git log --oneline -6`
+  for all six Day 5/6 commits; a commit cannot include its own final hash.
+
+### Days 5 and 6 completion and Day 7 starting point
+
+Both requested work sessions are complete. C independently validates test cases,
+the selected benchmark is pinned/attributed/audited, original and final sources can
+be scored independently, and A/B/C pipeline studies freeze identities and preserve
+complete evidence. Analysis retains known failures, timeouts, unsubmitted patches
+and unknown usage. Zero paid calls were made. No live adapter, funded pilot, LLM
+effect measurement, public execution service or release tag exists.
+
+Do not start Day 7 automatically. Next session:
+
+1. Read this log and PLAN, inspect Git/remotes and run existing offline checks.
+2. Build the local Streamlit UI using the same validated task/configuration,
+   repair and isolated execution backends. Display source, patch, visible outcomes,
+   attempt history, resource usage and separately labeled independent scores.
+   Never execute submitted/generated code or tests on the host; mock is default.
+3. Write a concise research/portfolio report grounded in the Day 6 evidence.
+   Separate scripted engineering observations from absent measured LLM results;
+   explain test coverage, public/inspected subset selection, small samples, unknown
+   token/cost information, suite-level regressions and container limits.
+4. Polish attribution, offline CI, fresh-environment instructions and a two-minute
+   local demo. Verify required checks and safeguards before considering a release
+   tag. Keep paid execution disabled until explicit funding configuration and a
+   conservatively budgeted live adapter exist. Do not infer spending permission.
+5. Commit/push each coherent Day 7 task; preserve historical evidence/checkpoints.
+
+Commands from the repository root; start Docker Desktop's Linux engine before
+Docker execution and choose unused output paths:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m vericode augment --task sum_positive --backend docker --output artifacts/new-c-repair.json
+.\.venv\Scripts\python.exe -m vericode evaluate --record artifacts/new-c-repair.json --backend docker --output artifacts/new-c-score.json
+.\.venv\Scripts\python.exe -m vericode study freeze --config configs/study_mock.json --split development --output artifacts/new-protocol.json
+.\.venv\Scripts\python.exe -m vericode study run --protocol artifacts/new-protocol.json --run-dir artifacts/new-study
+.\.venv\Scripts\python.exe -m vericode analyze --run-dir reports/day6/evidence/development --run-dir reports/day6/evidence/final --output artifacts/new-analysis
+.\.venv\Scripts\python.exe -m pip install -e ".[dev,analysis]"
+.\.venv\Scripts\python.exe -m vericode analyze --run-dir reports/day6/evidence/development --run-dir reports/day6/evidence/final --output artifacts/new-plotted-analysis --plot
+.\.venv\Scripts\python.exe -m pytest --run-docker -q
+```
+
+Historical study collection resume rejects the changed analysis/runtime code;
+freeze a new protocol to collect again. Read-only analysis intentionally accepts
+historical evidence and records original source identities without rerunning calls.
+
+Day 6 understanding checks: Why do actual calls differ despite budget ceilings?
+Why retain unresolved outcomes in the task denominator? What can a scripted
+demonstration establish, and what still requires a funded live-model experiment?

@@ -55,7 +55,7 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
   model identifiers, dataset revision, Git commit, limits, and available seeds.
 - [x] Task 2: complete a zero-cost pipeline pilot/final demo; no funded live pilot
   was run because no paid adapter or spending authorization exists.
-- Produce traceable tables/plots and failure analysis. Separate measured, pilot,
+- [x] Task 3: produce traceable tables/plots and failure analysis. Separate measured, pilot,
   demonstration, and mock results. If paid runs are unavailable, finish tooling
   and explicitly report that measured results are absent.
 

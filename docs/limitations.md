@@ -41,3 +41,9 @@
   Coverage remains narrow and oracle mistakes remain possible. Reference audits
   are engineering checks; public data and inspected final-task adapters limit any
   future claim about unseen-task generalisation. No final LLM measurement exists.
+- Day 6's development pilot and final-split demonstration use scripted/no-op mocks,
+  with separate complete evidence and no paid calls. Unknown final outcomes remain
+  unresolved. Tables/figures trace engineering observations; they cannot establish
+  an A/B/C model effect, significance, novelty or compute matching. Local timing is
+  machine dependent; API-zero cost excludes Docker compute. Optional plotting
+  versions are snapshotted but transitive dependencies are not universally locked.

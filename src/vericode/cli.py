@@ -24,6 +24,7 @@ from vericode.scoring import score_record
 from vericode.records import read_record
 from vericode.protocol import freeze_protocol
 from vericode.study import run_study
+from vericode.analysis import generate_report
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -93,6 +94,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     collect.add_argument("--data-root", type=Path, default=Path("data"))
     collect.add_argument("--run-dir", type=Path, required=True)
     collect.add_argument("--resume", action="store_true")
+    analyze = commands.add_parser("analyze", help="traceable demonstration tables and optional standalone SVG")
+    analyze.add_argument("--run-dir", type=Path, action="append", required=True)
+    analyze.add_argument("--output", type=Path, required=True)
+    analyze.add_argument("--plot", action="store_true", help="requires the optional analysis extra")
     args = parser.parse_args(argv)
     try:
         if args.command == "list-tasks":
@@ -131,6 +136,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             if record["status"] in ("infrastructure_error", "provider_error", "transport_error", "transient_error", "paid_execution_disabled"):
                 return 2
             return 0 if record["status"] in ("candidate_ready", "visible_passed") else 1
+        elif args.command == "analyze":
+            record = generate_report(args.run_dir, args.output, plots=args.plot)
+            print(json.dumps(record, indent=2, ensure_ascii=True, allow_nan=False))
         elif args.command == "study":
             if args.study_command == "freeze":
                 if args.output.exists() or args.output.is_symlink():

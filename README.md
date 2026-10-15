@@ -10,13 +10,17 @@ upper budget does not make these methods compute-matched.
 
 ## Status
 
-Day 5 is complete: test-augmented repair C, independently checked generated expectations,
-a pinned three-task QuixBugs subset, frozen splits, and independent scoring.
+Days 5 and 6 are complete: test-augmented repair C, independently checked generated
+expectations, a pinned three-task QuixBugs subset, frozen studies, independent
+scoring and traceable demonstration analysis.
 A/B, usage accounting, Docker execution, and resumable batches remain available.
 Paid API execution is disabled. No live-model experiment has been performed. See [PLAN.md](PLAN.md) and
 [PROGRESS.md](PROGRESS.md) for acceptance criteria and the next session.
 Engineering checks and reference audits are separate from model-performance results.
-The Day 5 full suite passed 236 checks, including 25 Docker checks.
+The reviewed [Day 6 report](reports/day6/analysis/report.md) includes complete
+evidence, tables and figures. Its 19 calls are mock transport invocations, with
+zero paid calls; these observations do not measure LLM performance.
+Final verification passed 254 checks, including 26 Docker checks.
 
 ## Setup
 
@@ -192,11 +196,11 @@ This project makes no claim of novelty, publication readiness, or guaranteed
 internship outcomes. A future patch may pass an evaluation suite without being
 proven correct.
 
-Read [architecture](docs/architecture.md), the [draft experiment protocol](docs/experiment_protocol.md),
+Read [architecture](docs/architecture.md), the [experiment protocol](docs/experiment_protocol.md),
 [limitations](docs/limitations.md), and [learning notes](docs/learning_notes.md).
 Read [generated tests](docs/generated_tests.md), [benchmark provenance](docs/benchmark.md),
-and [independent evaluation](docs/evaluation.md). Budgeted API adapters, experiment
-analysis, and the UI remain later work. This is not a release-ready system.
+and [independent evaluation](docs/evaluation.md). Budgeted API adapters and the
+Day 7 local UI/release work remain unfinished. This is not a release-ready system.
 
 Run C and then score its saved patch independently (start Docker first):
 
@@ -209,3 +213,29 @@ Omit `--backend docker` for entirely mock execution with unknown test outcomes.
 Use `configs/offline_augmented.json` with the batch command for development C runs.
 Final tasks are three disjoint `quix_*` fixtures; their repair mock emits unchanged
 source. Scoring never returns evaluator feedback to a repair provider.
+
+Freeze a new offline study before collecting, then inspect its usage and results:
+
+```powershell
+.\.venv\Scripts\python.exe -m vericode study freeze --config configs/study_mock.json --split development --output artifacts/new-protocol.json
+.\.venv\Scripts\python.exe -m vericode study run --protocol artifacts/new-protocol.json --run-dir artifacts/new-study
+.\.venv\Scripts\python.exe -m vericode study run --protocol artifacts/new-protocol.json --run-dir artifacts/new-study --resume
+```
+
+Choose `configs/study_docker.json` for isolated observed suites. All repairs finish
+before any evaluation begins. Paid studies are rejected; zero-dollar mock settings
+do not authorize spending. See [study recovery](docs/studies.md).
+
+Reproduce tables from the reviewed evidence without running candidates or models:
+
+```powershell
+.\.venv\Scripts\python.exe -m vericode analyze --run-dir reports/day6/evidence/development --run-dir reports/day6/evidence/final --output artifacts/new-analysis
+# Optional SVG/PNG figures; install the analysis extra first.
+.\.venv\Scripts\python.exe -m pip install -e ".[dev,analysis]"
+.\.venv\Scripts\python.exe -m vericode analyze --run-dir reports/day6/evidence/development --run-dir reports/day6/evidence/final --output artifacts/new-plotted-analysis --plot
+```
+
+Use unused paths. Historical analysis supports later code, while collection resume
+rejects runtime changes. Read [analysis semantics](docs/analysis.md) before quoting
+numbers; unknown outcomes/tokens remain explicit and these methods are not compute
+matched merely by budget ceilings.

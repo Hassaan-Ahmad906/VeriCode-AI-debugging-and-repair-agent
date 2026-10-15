@@ -102,3 +102,15 @@ An accepted-but-failing patch exposes weak visible coverage. A regression requir
 an observed original-suite pass followed by a candidate-suite failure. A timeout
 has unknown suite outcome; retaining it in the denominator prevents silent
 survivorship bias. Missing-outcome bounds are not statistical confidence intervals.
+
+## What demonstration tables mean
+
+The development A/B/C calls differ because B may stop before proposing and C first
+generates cases. A shared ceiling cannot equalise consumed compute. Record actual
+calls, tokens and cost; keep unknowns instead of estimating from byte limits.
+
+A table is defensible only when each number links to saved evidence. Protocol
+hashes identify the fixed configuration; event-line and payload hashes identify
+the exact observation. Reconcile totals against individual call records and keep
+duplicate protocols out. Checksum consistency does not authenticate a compromised
+controller. Mock successes validate plumbing, not LLM ability or generalisation.

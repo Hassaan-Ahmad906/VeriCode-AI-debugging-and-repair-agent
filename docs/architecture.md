@@ -107,3 +107,16 @@ completed repair record, then loads the separate frozen evaluation suite. It run
 original and candidate source through the same isolated executor, never calls a
 provider, and emits a separate score record. `metrics.py` retains unknown outcomes
 and explicit denominators. `records.py` bounds saved-record input to 16 MiB.
+
+## Day 6 studies and reporting
+
+`protocol.py` freezes validated zero-cost configurations, task/source identities,
+prompt/oracle versions and immutable image IDs before collection. `study.py`
+records each repair phase outcome before any scoring phase, reusing durable
+checkpoint safeguards without model access to evaluator data. Scores link to
+exact repair hashes. Historical snapshots are intentionally preserved.
+
+`analysis.py` checks evidence bytes/links and reconciles call-ledger totals, then
+exports a complete expected task matrix, per-protocol/split/method summaries,
+failure-case links, and optional Matplotlib figures. No model or candidate is
+executed during analysis. Unknowns and incomplete work remain explicit.

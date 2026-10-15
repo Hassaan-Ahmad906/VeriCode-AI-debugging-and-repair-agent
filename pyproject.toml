@@ -12,6 +12,7 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest==8.4.2"]
+analysis = ["matplotlib==3.10.8"]
 
 [project.scripts]
 vericode = "vericode.cli:main"

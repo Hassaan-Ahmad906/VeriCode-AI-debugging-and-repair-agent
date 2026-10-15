@@ -31,6 +31,9 @@ these bytes across platforms. Source artifacts remain under ignored
 `artifacts/day6/`; the reviewed evidence copies are intentionally versioned for
 traceability. Checksums are not authenticated provenance.
 
-Tables, figures and failure analysis are produced next from these journals. The
+The [generated analysis](analysis/report.md), [task rows](analysis/tasks.csv),
+[method summaries](analysis/summary.csv), [metric JSON](analysis/analysis.json),
+[SVG](analysis/outcomes-and-calls.svg) and [PNG](analysis/outcomes-and-calls.png)
+are derived from these journals, with exact event/hash links. The
 small public, inspected subset, scripted development answers, unchanged final
 mocks and lack of live token/cost measurements prohibit LLM or generalisation claims.
