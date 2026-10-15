@@ -50,7 +50,7 @@ def main():
         shutil.copyfile(args.source / path, destination)
     for name in NAMES:
         task_id = "quix_" + name
-        pairs = [json.loads(line) for line in (args.source / f"json_testcases/{name}.json").read_text().splitlines() if line.strip()]
+        pairs = [json.loads(line) for line in (args.source / f"json_testcases/{name}.json").read_text(encoding="utf-8").splitlines() if line.strip()]
         # Keep one upstream visible case; all remaining upstream cases evaluator-only.
         hidden = [pair for pair in pairs if pair != list(VISIBLE[name])]
         if name == "find_first_in_sorted":
@@ -69,9 +69,9 @@ def main():
     for split in ("development", "final"):
         manifest = TaskManifest.load(Path(f"data/manifests/{split}.json"))
         tasks = manifest.load_tasks(Path("data/repair"))
-        repair_freeze[split] = {"manifest": fingerprint(json.loads(Path(f"data/manifests/{split}.json").read_text())),
+        repair_freeze[split] = {"manifest": fingerprint(json.loads(Path(f"data/manifests/{split}.json").read_text(encoding="utf-8"))),
                                 "tasks": {task.task_id: fingerprint(task.__dict__) for task in tasks}}
-        evaluation_freeze[split] = {task.task_id: fingerprint(json.loads((Path("data/evaluation") / task.task_id / "suite.json").read_text())) for task in tasks}
+        evaluation_freeze[split] = {task.task_id: fingerprint(json.loads((Path("data/evaluation") / task.task_id / "suite.json").read_text(encoding="utf-8"))) for task in tasks}
     write_json(Path("data/manifests/repair_freeze.json"), {"schema_version": 1, "splits": repair_freeze})
     write_json(Path("data/benchmark/evaluation_freeze.json"), {"schema_version": 1, "splits": evaluation_freeze})
     print("Adapted three pinned final tasks; frozen disjoint repair/evaluation identities.")

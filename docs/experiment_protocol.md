@@ -1,4 +1,4 @@
-# Experiment protocol — draft, not frozen
+# Experiment protocol — versioned demonstration procedure
 
 Question: how much do execution feedback and additional test generation improve
 LLM-based program repair, relative to their cost?
@@ -16,11 +16,12 @@ and known cost. A shared budget ceiling is not compute matching. Missing token o
 price information remains unknown, never an invented estimate or zero. Paid API
 execution is disabled until the user explicitly configures an acceptable budget.
 
-`self-authored-v1` has three development tasks and zero final tasks. Available and
+`self-authored-v1` has three development tasks; the disjoint final manifest now has
+three pinned tasks from `quixbugs-4257f44-v1`. Available and
 evaluation-only tests are distinct within each task; this is separate from the
 development/final task split. The final manifest and full protocol must be frozen
-before final measurement. QuixBugs suitability, license, source pin, attribution,
-and reference/test consistency are Day 5 work; no content is imported yet.
+before collection. The selected QuixBugs license, pin, adaptations and reference
+audit are documented in `benchmark.md`; this is not the full or a blind benchmark.
 
 Score final candidates on evaluation tests unavailable during repair. Report
 evaluation-suite success, regressions, accepted-but-failing patches, invalid
@@ -42,3 +43,11 @@ engineering demonstration limits; freeze experimental budgets before final runs.
 Mock execution supplies no observed feedback and stops after one candidate with
 unknown acceptance. Scripted responses tested inside Docker are sandbox smoke
 checks. No A/B effect size or model-performance comparison can be inferred.
+
+Day 6 implements immutable per-run protocol snapshots via `study freeze`, then
+durable two-phase A/B/C collection. The supplied mock and Docker configurations
+admit only zero-cost scripted/no-op providers. Snapshot identities and actual
+prompts/usage preserve each demonstration; they do not establish live-model ability.
+Use `studies.md` for pilot/review/final-demo procedures and failure recovery.
+Measured, pilot and demonstration labels must not be pooled. No live-model
+measurement or funded pilot exists; future paid work requires a new frozen protocol.

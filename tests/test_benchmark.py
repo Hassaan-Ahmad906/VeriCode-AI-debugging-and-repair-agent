@@ -11,6 +11,8 @@ from vericode.generated_tests import expected_value
 from vericode.model_io import RepairRequest
 from vericode.providers import MockProvider
 from vericode.schemas import ValidationError
+from vericode.checkpoints import fingerprint
+from vericode.evaluation import load_evaluation_suite
 
 
 def test_frozen_splits_and_noop_final_mock_need_no_evaluator(data_root, tmp_path):
@@ -51,3 +53,11 @@ def test_vendored_bytes_and_all_upstream_expectations(data_root):
         for args, expected in pairs:
             actual = expected_value(task.task_id, args)
             assert type(actual) is type(expected) and actual == expected
+
+
+def test_all_suite_freezes_use_utf8_including_non_ascii_case_text(data_root):
+    frozen = json.loads((data_root / "benchmark/evaluation_freeze.json").read_text(encoding="utf-8"))
+    for split in ("development", "final"):
+        for task_id, digest in frozen["splits"][split].items():
+            suite = load_evaluation_suite(data_root / "evaluation", task_id)
+            assert fingerprint(asdict(suite)) == digest

@@ -22,6 +22,8 @@ from vericode.sandbox_policy import DEFAULT_IMAGE, ExecutionLimits
 from vericode.schemas import ValidationError
 from vericode.scoring import score_record
 from vericode.records import read_record
+from vericode.protocol import freeze_protocol
+from vericode.study import run_study
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -79,6 +81,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     evaluate.add_argument("--image", default=DEFAULT_IMAGE)
     evaluate.add_argument("--timeout", type=float, default=10.0)
     evaluate.add_argument("--output", type=Path)
+    study = commands.add_parser("study", help="freeze and collect offline A/B/C pipeline demonstrations")
+    study_commands = study.add_subparsers(dest="study_command", required=True)
+    freeze = study_commands.add_parser("freeze", help="record fixed data/code/configuration before collection")
+    freeze.add_argument("--config", type=Path, default=Path("configs/study_mock.json"))
+    freeze.add_argument("--data-root", type=Path, default=Path("data"))
+    freeze.add_argument("--split", choices=("development", "final"), default="development")
+    freeze.add_argument("--output", type=Path, required=True)
+    collect = study_commands.add_parser("run", help="finish all repairs, then independent scoring; durable resumption")
+    collect.add_argument("--protocol", type=Path, required=True)
+    collect.add_argument("--data-root", type=Path, default=Path("data"))
+    collect.add_argument("--run-dir", type=Path, required=True)
+    collect.add_argument("--resume", action="store_true")
     args = parser.parse_args(argv)
     try:
         if args.command == "list-tasks":
@@ -117,6 +131,18 @@ def main(argv: Sequence[str] | None = None) -> int:
             if record["status"] in ("infrastructure_error", "provider_error", "transport_error", "transient_error", "paid_execution_disabled"):
                 return 2
             return 0 if record["status"] in ("candidate_ready", "visible_passed") else 1
+        elif args.command == "study":
+            if args.study_command == "freeze":
+                if args.output.exists() or args.output.is_symlink():
+                    raise FileExistsError(f"output already exists: {args.output}")
+                record = freeze_protocol(args.data_root, read_json(args.config), args.split)
+                write_run(args.output, record)
+                print(json.dumps(record, indent=2, ensure_ascii=True, allow_nan=False))
+            else:
+                record = run_study(args.data_root, read_record(args.protocol), args.run_dir, resume=args.resume)
+                print(json.dumps(record, indent=2, ensure_ascii=True, allow_nan=False))
+                if record["pending"] or record["evaluation"]["infrastructure_errors"]:
+                    return 2
         elif args.command == "evaluate":
             if args.output and (args.output.exists() or args.output.is_symlink()):
                 raise FileExistsError(f"output already exists: {args.output}")

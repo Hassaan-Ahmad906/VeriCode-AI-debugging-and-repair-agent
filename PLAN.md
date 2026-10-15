@@ -51,7 +51,7 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 
 ## Day 6 — Experiments and analysis
 
-- Freeze protocol/configuration before final runs; record task list, prompts,
+- [x] Task 1: freeze protocol/configuration before final runs; record task list, prompts,
   model identifiers, dataset revision, Git commit, limits, and available seeds.
 - Pilot and run only within an explicitly configured acceptable budget.
 - Produce traceable tables/plots and failure analysis. Separate measured, pilot,

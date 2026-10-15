@@ -502,3 +502,30 @@ freeze actual configurations/identities before collection, verify conservative
 resumption and accounting, run only offline/sandbox demonstrations, then produce
 traceable analysis and explicitly record missing live-model results. Stop before
 Day 7; no paid model adapter or live spending is authorized.
+
+### Day 6 task 1 — Frozen two-phase study collection
+
+- Day 5 task 3 pushed/verified: `61ce1593d73ff0c105db43427589d0fb6febdbd8`.
+- Added strict zero-cost study configuration, immutable pre-collection protocol
+  snapshots, exact task/configuration/runtime/prompt/oracle identities and frozen
+  Docker image IDs. Same per-response limits, model and execution controls are
+  required across methods; actual calls/tokens remain distinct, not compute-matched.
+- Added durable A/B/C collection with all repairs before independent scoring,
+  per-phase/task started/outcome envelopes, conservative resume, error stopping,
+  storage reservation, and aggregate usage/unknown-outcome metrics. Live adapters
+  and paid caps remain unimplemented; explicit nonzero/paid study configs reject.
+- An initial study test caught a Windows default-encoding hash error for the
+  existing non-ASCII vowel evaluator case. Fixed importer reads to explicit UTF-8
+  and corrected only its frozen hash, not test content. Added a regression check
+  over every development/final evaluation-suite fingerprint before any collection.
+- Targeted offline protocol/study/benchmark checks passed (13, one Docker opt-in
+  skip). Docker study verification and complete offline checks reported below.
+- Docker study check passed: development A/B/C collection scored seven passes,
+  two failures and two accepted-but-failing cases using ten scripted calls; resume
+  added zero calls. Targeted suite passed ten checks. Later exact repair/score-link
+  validation passed its targeted checks; full offline suite passed 222, 26 skipped.
+- Whitespace and secret-pattern checks passed. These study tests are engineering
+  evidence only; persistent pilot/final demonstrations are collected next.
+- Commit: `feat: freeze and collect resumable offline studies`; next run and review
+  a development pipeline pilot, freeze a separate final demonstration, and retain
+  the explicit absence of measured LLM results.
