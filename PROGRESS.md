@@ -434,3 +434,30 @@ then stop before Day 7. Paid API execution remains disabled.
 - Commit: `feat: add independently validated test-augmented repair`; next inspect
   pinned benchmark licensing/reference behaviour, adapt a documented subset, and
   freeze disjoint task manifests.
+
+### Day 5 task 2 — Pinned benchmark and frozen splits
+
+- Task 1 pushed/verified: `af13ee0d36b5c8a9fa55e05041851cb9401ede90`.
+- Reviewed QuixBugs revision `4257f44b0ff1181dedaedee6a447e133219fcebf`,
+  MIT notice/legal notes, selected buggy/reference programs, JSON/pytest tests,
+  loader and driver. Preserved license and vendored bytes; provenance enumerates
+  all 47 other Python-program files as outside this deliberately small audit.
+- Adapted three standalone final tasks without editing buggy source. One upstream
+  case per task is visible; remaining cases are evaluator-only. Added one documented
+  empty-search edge case and explicit gcd(0,0) convention. All 16 upstream expected
+  values agree with independent specification rules. No case silently fixed/dropped.
+- Docker audit: all three references passed all 17 adapted cases; original gcd
+  and parentheses failed, binary search timed out on an absent low value. All six
+  jobs confirmed cleanup. Preserved timeout/unknown counts. Compact summary and
+  source hashes are versioned; full artifact `artifacts/day5-quixbugs-audit.json`.
+- Froze disjoint development/final manifests and canonical repair fingerprints;
+  evaluation fingerprints are separate. Frozen repair verification needs no
+  evaluation tree. Final mocks explicitly propose unchanged source, not references.
+- Checks: 199 offline passed, 23 Docker opt-in skips; source-byte/oracle/freeze
+  tests passed. This is an adapted three-task audit, not full-benchmark coverage,
+  blind validation, or a measured model result.
+- Preserved an upstream trailing blank line in the reference gcd file; a narrow
+  whitespace attribute exempts only its blank-at-EOF warning. Byte hashes verify
+  all vendored content; project-authored whitespace checks remain enabled.
+- Commit: `feat: add pinned QuixBugs subset and frozen data splits`; next independent
+  post-repair scoring, regression metrics and an overfit rejection check.

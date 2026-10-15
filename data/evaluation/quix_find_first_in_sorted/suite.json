@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "dataset_version": "quixbugs-4257f44-v1",
+  "task_id": "quix_find_first_in_sorted",
+  "tests": "from solution import find_first_in_sorted\n\ndef test_case_0():\n    assert find_first_in_sorted(*[[3, 4, 5, 5, 5, 5, 6], 7]) == -1\n\ndef test_case_1():\n    assert find_first_in_sorted(*[[3, 4, 5, 5, 5, 5, 6], 2]) == -1\n\ndef test_case_2():\n    assert find_first_in_sorted(*[[3, 6, 7, 9, 9, 10, 14, 27], 14]) == 6\n\ndef test_case_3():\n    assert find_first_in_sorted(*[[0, 1, 6, 8, 13, 14, 67, 128], 80]) == -1\n\ndef test_case_4():\n    assert find_first_in_sorted(*[[0, 1, 6, 8, 13, 14, 67, 128], 67]) == 6\n\ndef test_case_5():\n    assert find_first_in_sorted(*[[0, 1, 6, 8, 13, 14, 67, 128], 128]) == 7\n\ndef test_case_6():\n    assert find_first_in_sorted(*[[], 1]) == -1\n"
+}

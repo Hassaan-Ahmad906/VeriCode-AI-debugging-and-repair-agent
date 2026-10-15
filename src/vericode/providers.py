@@ -9,6 +9,7 @@ from vericode.model_io import (
     GenerationLimits, INSTRUCTION, ModelProvider, ModelResponse, PROMPT_VERSION, RepairRequest, Usage,
 )
 from vericode.schemas import Candidate, ValidationError
+from vericode.benchmark import QUIXBUGS_VERSION
 
 
 # Demonstration responses are controller configuration, never agent inputs or
@@ -26,8 +27,11 @@ class MockTransport:
     def complete(self, prompt: str, *, model: str, max_output_tokens: int,
                  timeout_seconds: float) -> RawCompletion:
         payload = json.loads(prompt.split("\n\n", 1)[1])
-        task_id = payload.get("task", payload)["task_id"]
-        candidate = Candidate(task_id, "solution.py", _SCRIPTED_REPLACEMENTS[task_id])
+        task = payload.get("task", payload)
+        task_id = task["task_id"]
+        # Final fixtures use explicit no-op mocks, never reference solutions.
+        replacement = _SCRIPTED_REPLACEMENTS.get(task_id, task["source"])
+        candidate = Candidate(task_id, "solution.py", replacement)
         return RawCompletion(json.dumps(asdict(candidate)), Usage(cost_usd=0.0), model)
 
 
@@ -39,6 +43,9 @@ class MockProvider(StructuredProvider):
 
     def propose(self, request: RepairRequest, *, max_transport_calls: int | None = None) -> ModelResponse:
         task = request.task
+        if (task.dataset_version == QUIXBUGS_VERSION and task.split == "final" and
+            task.task_id in {"quix_gcd", "quix_find_first_in_sorted", "quix_is_valid_parenthesization"}):
+            return super().propose(request, max_transport_calls=max_transport_calls)
         if task.split != "development" or task.dataset_version != "self-authored-v1":
             raise ValidationError("mock provider supports only self-authored-v1 development tasks")
         if task.task_id not in _SCRIPTED_REPLACEMENTS:

@@ -14,7 +14,7 @@ def test_development_fixtures_have_separate_matching_suites(data_root):
     tasks = development.load_tasks(data_root / "repair")
     assert len(tasks) == 3
     assert not set(development.task_ids) & set(final.task_ids)
-    assert final.task_ids == ()  # No claimed final evaluation data yet.
+    assert final.task_ids == ("quix_gcd", "quix_find_first_in_sorted", "quix_is_valid_parenthesization")
     for task in tasks:
         suite = load_evaluation_suite(data_root / "evaluation", task.task_id)
         assert suite.dataset_version == task.dataset_version

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "splits": {
+    "development": {
+      "manifest": "1fce1e957c6d4c5b92eb8c829dec6f580d094bb7f24c912a84ee1a25770be31d",
+      "tasks": {
+        "sum_positive": "e80ac91b7b8e6e5825be6c9f8e62a27a3b58dfa12e3e4f1e1ce4ff4c30ebf992",
+        "count_vowels": "accdfef0012a0a595ada54d17fc5f8ddeec52bf54c17c9298fd049bf6ccffea6",
+        "clamp": "9e9103840330c8db36b5536d3b72cdb22301810f07c256800ff34ca9a27bd1f7"
+      }
+    },
+    "final": {
+      "manifest": "980770bd1207cd75b6614488c94638df27dde41d2de835a88b2912f6e968d415",
+      "tasks": {
+        "quix_gcd": "1715adce80b71949b78823ad20d98f83f2aab3db3f1edbc0fc32bfcbd7d3acff",
+        "quix_find_first_in_sorted": "c4b05e1618f0f506007f0899c6f7a5fdbeb370eb3a536de0790ab8429205b5f2",
+        "quix_is_valid_parenthesization": "d1fcdf7bcc18b42caf30d267217f6a6e0c491fe4d6514c6f1fcc8cd2fa1a1896"
+      }
+    }
+  }
+}

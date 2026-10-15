@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "splits": {
+    "development": {
+      "sum_positive": "3d0958fe1f727e159696a9784062011314f6e57b8b390121b82fe31970514151",
+      "count_vowels": "fa170e7ff5f296a9048ddc2fac7105ab076b75f26f6855ab256e2cad2aa9d22b",
+      "clamp": "16560d0a7a846d259ea77ebe083d6b074fc117f34fb25aa2197e3f357dcecc61"
+    },
+    "final": {
+      "quix_gcd": "43f127ce5a0aa19d720633b8cfbef710de0d5801ca76ac487a790cf3b803e5bb",
+      "quix_find_first_in_sorted": "3976c43c4a63fa40b4493854d58ae519ef71b423486c168d40e33a68f164a6bb",
+      "quix_is_valid_parenthesization": "843df39e40989a4523db91ff22c3a07b58c8077c90401192a39c380908136b4b"
+    }
+  }
+}

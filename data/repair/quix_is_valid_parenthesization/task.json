@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "dataset_version": "quixbugs-4257f44-v1",
+  "task_id": "quix_is_valid_parenthesization",
+  "split": "final",
+  "specification": "Given a string containing only '(' and ')', return whether its parentheses are balanced: every prefix has nonnegative balance and the total balance is zero. Empty input is balanced.",
+  "entry_point": "is_valid_parenthesization",
+  "task_file": "solution.py",
+  "source": "\ndef is_valid_parenthesization(parens):\n    depth = 0\n    for paren in parens:\n        if paren == '(':\n            depth += 1\n        else:\n            depth -= 1\n            if depth < 0:\n                return False\n\n    return True\n\n\n\"\"\"\nNested Parens\nInput:\n    parens: A string of parentheses\n\nPrecondition:\n    all(paren in '()' for paren in parens)\n\nOutput:\n    Whether the parentheses are properly nested\n\nExamples:\n    >>> is_valid_parenthesization('((()()))()')\n    True\n    >>> is_valid_parenthesization(')()(')\n    False\n\"\"\"\n",
+  "repair_tests": "from solution import is_valid_parenthesization\n\ndef test_case_0():\n    assert is_valid_parenthesization(*['((()()))()']) == True\n"
+}

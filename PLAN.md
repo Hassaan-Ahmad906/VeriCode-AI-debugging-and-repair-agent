@@ -43,7 +43,7 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 
 - [x] Task 1: implement C with independently justified expected values/properties; log and
   discard invalid generated tests. Model agreement is not independent evidence.
-- Inspect original QuixBugs license, attribution, references, and test behaviour
+- [x] Task 2: inspect original QuixBugs license, attribution, references, and test behaviour
   before importing anything. Pin a suitable revision; record all inconsistencies
   and exclusions. Freeze disjoint development and final task manifests.
 - Implement independent evaluation and metrics; accept a test showing that an

@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "dataset_version": "quixbugs-4257f44-v1",
+  "task_id": "quix_gcd",
+  "tests": "from solution import gcd\n\ndef test_case_0():\n    assert gcd(*[13, 13]) == 13\n\ndef test_case_1():\n    assert gcd(*[37, 600]) == 1\n\ndef test_case_2():\n    assert gcd(*[20, 100]) == 20\n\ndef test_case_3():\n    assert gcd(*[624129, 2061517]) == 18913\n\ndef test_case_4():\n    assert gcd(*[3, 12]) == 3\n"
+}

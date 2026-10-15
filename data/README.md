@@ -8,9 +8,9 @@ enumeration; they are not observations from the buggy functions.
 
 `repair/<id>/task.json` is the complete repair-visible input. The evaluator alone
 loads `evaluation/<id>/suite.json`. Manifests specify fixed task IDs and versions.
-The final manifest is intentionally empty: these tasks are for implementation and
-prompt development, never final performance reporting. Do not silently reuse them
-as an evaluation task split. Evaluation-only **tests** and final-evaluation
+These tasks are for implementation and prompt development, never final performance
+reporting. The final manifest now selects a disjoint pinned QuixBugs subset.
+Evaluation-only **tests** and final-evaluation
 **tasks** are separate concepts.
 
 The visible tests deliberately miss some faults. In particular, `sum_positive`
@@ -21,4 +21,7 @@ expectations have not become a final benchmark measurement.
 The evaluator fixtures are in the public repository, so they are not secret;
 the boundary is their absence from agent context and candidate workspaces.
 
-QuixBugs is deferred to Day 5. No external benchmark content has been imported.
+Day 5 adds three final `quix_*` tasks with unchanged upstream buggy source,
+attribution, source hashes, explicit adaptations, and reference audits. See
+[benchmark review](../docs/benchmark.md). Frozen repair identities are separate
+from evaluator-suite hashes; neither references nor evaluator data enter requests.

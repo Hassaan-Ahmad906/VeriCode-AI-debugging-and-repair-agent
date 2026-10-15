@@ -1,6 +1,10 @@
 {
   "schema_version": 1,
-  "dataset_version": "self-authored-v1",
+  "dataset_version": "quixbugs-4257f44-v1",
   "split": "final",
-  "task_ids": []
+  "task_ids": [
+    "quix_gcd",
+    "quix_find_first_in_sorted",
+    "quix_is_valid_parenthesization"
+  ]
 }

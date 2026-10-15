@@ -3,14 +3,16 @@
 from dataclasses import asdict, dataclass
 import ast
 import json
+import math
 
 from vericode.datasets import _unique_object
 from vericode.model_calls import RawCompletion, StructuredProvider, _reject_constant
 from vericode.model_io import RepairRequest, Usage
 from vericode.schemas import ValidationError, require_fields
+from vericode.benchmark import QUIXBUGS_VERSION
 
 TEST_PROMPT_VERSION = "test-cases-v1"
-ORACLE_VERSION = "spec-rules-v1"
+ORACLE_VERSION = "spec-rules-v2"
 
 
 @dataclass(frozen=True)
@@ -55,6 +57,17 @@ def expected_value(task_id: str, args: list):
         value, lower, upper = args
         if lower <= upper:
             return lower if value < lower else upper if value > upper else value
+    if task_id == "quix_gcd" and len(args) == 2 and all(type(v) is int and 0 <= v <= 10_000_000 for v in args):
+        return math.gcd(*args)
+    if task_id == "quix_find_first_in_sorted" and len(args) == 2:
+        values, target = args
+        if isinstance(values, list) and len(values) <= 12 and all(_integer(v) for v in values) and _integer(target) and values == sorted(values):
+            return next((i for i, value in enumerate(values) if value == target), -1)
+    if task_id == "quix_is_valid_parenthesization" and len(args) == 1:
+        text = args[0]
+        if isinstance(text, str) and len(text) <= 80 and all(c in "()" for c in text):
+            balances = [sum(1 if c == "(" else -1 for c in text[:i]) for i in range(len(text) + 1)]
+            return balances[-1] == 0 and min(balances) >= 0
     raise ValidationError("unsupported task or arguments outside the reviewed oracle domain")
 
 
@@ -67,7 +80,8 @@ def validate_cases(task, cases: list) -> tuple[str, list[dict]]:
         rendered = ""
         try:
             case = require_fields(proposal, {"args", "expected"}, "test case")
-            if task.dataset_version != "self-authored-v1" or task.entry_point != task.task_id:
+            expected_entry = task.task_id.removeprefix("quix_") if task.dataset_version == QUIXBUGS_VERSION else task.task_id
+            if task.dataset_version not in ("self-authored-v1", QUIXBUGS_VERSION) or task.entry_point != expected_entry:
                 raise ValidationError("no reviewed oracle for this dataset/entry point")
             expected = expected_value(task.task_id, case["args"])
             # Strict type equality rejects True as a substitute for integer 1.
@@ -109,6 +123,9 @@ class MockTestTransport:
             "sum_positive": {"args": [[-2, 4]], "expected": 4},
             "count_vowels": {"args": ["AeIoU"], "expected": 5},
             "clamp": {"args": [-3, 0, 5], "expected": 0},
+            "quix_gcd": {"args": [9, 6], "expected": 3},
+            "quix_find_first_in_sorted": {"args": [[], 1], "expected": -1},
+            "quix_is_valid_parenthesization": {"args": ["("], "expected": False},
         }
         case = cases.get(task["task_id"], {"args": [], "expected": None})
         return RawCompletion(json.dumps({"cases": [case]}), Usage(cost_usd=0.0), model)

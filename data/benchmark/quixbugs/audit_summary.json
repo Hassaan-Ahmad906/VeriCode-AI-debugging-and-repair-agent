@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "run_kind": "benchmark_audit",
+  "revision": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+  "image_id": "sha256:9d860dea7272681240b58e11ce875725c772abb3205bddf726b72479a1ce1958",
+  "reviewed_on": "2026-10-15",
+  "full_artifact": "artifacts/day5-quixbugs-audit.json",
+  "full_artifact_sha256": "850170f7fa6ebb5504750a33770e614f9015b1bfecee6c0b3ee9ea374756ed33",
+  "records": [
+    {
+      "task_id": "quix_gcd",
+      "upstream_cases": 6,
+      "expectations_agree_with_rules": true,
+      "original": {
+        "status": "failed",
+        "tests_passed": 1,
+        "tests_failed": 5,
+        "cleanup_confirmed": true,
+        "image_id": "sha256:9d860dea7272681240b58e11ce875725c772abb3205bddf726b72479a1ce1958"
+      },
+      "reference": {
+        "status": "passed",
+        "tests_passed": 6,
+        "tests_failed": 0,
+        "cleanup_confirmed": true,
+        "image_id": "sha256:9d860dea7272681240b58e11ce875725c772abb3205bddf726b72479a1ce1958"
+      }
+    },
+    {
+      "task_id": "quix_find_first_in_sorted",
+      "upstream_cases": 7,
+      "expectations_agree_with_rules": true,
+      "original": {
+        "status": "timeout",
+        "tests_passed": null,
+        "tests_failed": null,
+        "cleanup_confirmed": true,
+        "image_id": "sha256:9d860dea7272681240b58e11ce875725c772abb3205bddf726b72479a1ce1958"
+      },
+      "reference": {
+        "status": "passed",
+        "tests_passed": 8,
+        "tests_failed": 0,
+        "cleanup_confirmed": true,
+        "image_id": "sha256:9d860dea7272681240b58e11ce875725c772abb3205bddf726b72479a1ce1958"
+      }
+    },
+    {
+      "task_id": "quix_is_valid_parenthesization",
+      "upstream_cases": 3,
+      "expectations_agree_with_rules": true,
+      "original": {
+        "status": "failed",
+        "tests_passed": 2,
+        "tests_failed": 1,
+        "cleanup_confirmed": true,
+        "image_id": "sha256:9d860dea7272681240b58e11ce875725c772abb3205bddf726b72479a1ce1958"
+      },
+      "reference": {
+        "status": "passed",
+        "tests_passed": 3,
+        "tests_failed": 0,
+        "cleanup_confirmed": true,
+        "image_id": "sha256:9d860dea7272681240b58e11ce875725c772abb3205bddf726b72479a1ce1958"
+      }
+    }
+  ]
+}
