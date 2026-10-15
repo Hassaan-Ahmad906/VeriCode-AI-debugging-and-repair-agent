@@ -10,6 +10,7 @@ from vericode.checkpoints import Checkpoint, fingerprint, locked_directory
 from vericode.datasets import TaskManifest
 from vericode.direct_run import make_executor, record_direct_task
 from vericode.feedback_run import record_feedback_task
+from vericode.augmented import record_augmented_task
 from vericode.docker_executor import DockerExecutor
 from vericode.experiments import _git_revision
 from vericode.run_config import RunConfiguration
@@ -92,8 +93,9 @@ def run_batch(data_root: Path, manifest_path: Path, config: RunConfiguration, di
                 raise ValidationError("recorded Docker image is unavailable or mismatched")
         for task in pending:
             started = checkpoint.start(task.task_id)  # fsync before any model call.
-            record = (record_feedback_task(task, config, executor) if config.strategy == "feedback"
-                      else record_direct_task(task, config, executor))
+            controller = {"direct": record_direct_task, "feedback": record_feedback_task,
+                          "augmented": record_augmented_task}[config.strategy]
+            record = controller(task, config, executor)
             record["batch_id"] = checkpoint.batch_id
             record["runtime"] = identity["runtime"]
             checkpoint.finish(started, record)  # Terminal failures are outcomes too.

@@ -41,7 +41,7 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 
 ## Day 5 — Additional tests and independent evaluation
 
-- Implement C with independently justified expected values/properties; log and
+- [x] Task 1: implement C with independently justified expected values/properties; log and
   discard invalid generated tests. Model agreement is not independent evidence.
 - Inspect original QuixBugs license, attribution, references, and test behaviour
   before importing anything. Pin a suitable revision; record all inconsistencies

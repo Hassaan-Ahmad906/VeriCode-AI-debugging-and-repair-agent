@@ -412,3 +412,25 @@ docker build --tag vericode-runner:day2 sandbox
 Understanding checks: Why can one repair attempt consume several transport calls?
 Why can B accept an unchanged buggy original with zero calls? Why must evaluator
 feedback remain unavailable to the repair loop, even after visible success?
+
+## Days 5 and 6 — 2026-10-15 (Asia/Karachi)
+
+The user explicitly authorized both work sessions today. Complete Day 5 and Day 6,
+then stop before Day 7. Paid API execution remains disabled.
+
+### Day 5 task 1 — Independently checked generated tests
+
+- Inspected the clean repository and verified origin/master at `d5b66b8`; baseline
+  185 offline checks passed, 22 Docker checks opt-in. Started Docker Desktop hidden.
+- Added C with bounded JSON case generation, versioned specification rules,
+  literal rendering, discard reasons, shared generation/repair call accounting,
+  purpose-labeled calls, schema 3 configuration, CLI and batch dispatch.
+- No arbitrary model test code executes on the host. Wrong expectations, duplicate
+  cases, unsupported domains, malformed envelopes and test-name collisions are
+  rejected. Original visible tests remain intact; evaluator inputs are absent.
+- Checks: 196 offline passed, 23 Docker opt-in skips; targeted C suite passed all
+  12 checks including Docker. Generated negative input exposed the weak positive-sum
+  visible suite; scripted repair passed all three augmented tests. No paid calls.
+- Commit: `feat: add independently validated test-augmented repair`; next inspect
+  pinned benchmark licensing/reference behaviour, adapt a documented subset, and
+  freeze disjoint task manifests.

@@ -22,8 +22,12 @@ def record_feedback_task(task: RepairTask, config: FeedbackConfiguration,
                          executor: CandidateExecutor | None = None) -> dict:
     outcome = feedback_repair(task, MockProvider(config.model, config.generation),
                               executor if executor is not None else make_executor(config), config.feedback)
+    return record_feedback_outcome(task, config, outcome)
+
+
+def record_feedback_outcome(task, config, outcome) -> dict:
     return {
-        "schema_version": 2, "run_id": str(uuid4()),
+        "schema_version": config.to_dict()["schema_version"], "run_id": str(uuid4()),
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "run_kind": "mock" if config.backend == "mock" else "sandbox_smoke",
         "strategy": config.strategy, "package_version": __version__,

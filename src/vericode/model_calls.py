@@ -5,6 +5,7 @@ import hashlib
 import json
 from time import monotonic
 from typing import Protocol
+from collections.abc import Callable
 
 from vericode.datasets import _unique_object
 from vericode.model_io import CallRecord, GenerationLimits, ModelResponse, RepairRequest, Usage, identifier
@@ -16,6 +17,14 @@ class RawCompletion:
     text: str
     usage: Usage = Usage()
     model: str | None = None
+
+
+@dataclass(frozen=True)
+class StructuredReply:
+    value: object
+    model: str
+    usage: Usage
+    calls: tuple[CallRecord, ...]
 
 
 class CompletionTransport(Protocol):
@@ -70,6 +79,11 @@ class StructuredProvider:
         self.offline = transport.offline is True
 
     def propose(self, request: RepairRequest, *, max_transport_calls: int | None = None) -> ModelResponse:
+        reply = self.generate(request, parse_candidate, max_transport_calls=max_transport_calls)
+        return ModelResponse(reply.value, self.provider, reply.model, reply.usage.input_tokens,
+                             reply.usage.output_tokens, reply.usage.cost_usd, reply.calls)
+
+    def generate(self, request: RepairRequest, parser: Callable, *, max_transport_calls: int | None = None) -> StructuredReply:
         if not self.offline:
             raise ProviderFailure("paid_execution_disabled", (), "Paid/network model execution is disabled; configure a budgeted adapter first.")
         call_limit = self.limits.max_transport_calls
@@ -106,12 +120,11 @@ class StructuredProvider:
                     reported = raw.model
                 if usage.output_tokens is not None and usage.output_tokens > self.limits.output_tokens:
                     raise ValidationError("reported output tokens exceed the request limit")
-                candidate = parse_candidate(raw.text, self.limits.response_bytes)
+                value = parser(raw.text, self.limits.response_bytes)
                 digest = hashlib.sha256(raw.text.encode("utf-8")).hexdigest()
             except (ValidationError, TypeError) as exc:
                 calls.append(CallRecord(index, "invalid_response", self.provider, self.model, reported, usage, monotonic() - started))
                 raise ProviderFailure("invalid_response", tuple(calls), str(exc)) from None
             calls.append(CallRecord(index, "completed", self.provider, self.model, reported, usage, monotonic() - started, digest))
-            return ModelResponse(candidate, self.provider, reported or self.model,
-                                 usage.input_tokens, usage.output_tokens, usage.cost_usd, tuple(calls))
+            return StructuredReply(value, reported or self.model, usage, tuple(calls))
         raise AssertionError("validated transport-call budget cannot be empty")

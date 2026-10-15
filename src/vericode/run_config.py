@@ -36,6 +36,8 @@ class RunConfiguration:
 
     @classmethod
     def from_dict(cls, data: dict) -> "RunConfiguration":
+        if isinstance(data, dict) and data.get("strategy") == "augmented":
+            return AugmentedConfiguration.from_dict(data)
         if isinstance(data, dict) and data.get("strategy") == "feedback":
             return FeedbackConfiguration.from_dict(data)
         data = require_fields(data, {"schema_version", "strategy", *cls.__dataclass_fields__}, "run configuration")
@@ -74,3 +76,21 @@ class FeedbackConfiguration(RunConfiguration):
         feedback = require_fields(data["feedback"], set(FeedbackLimits.__dataclass_fields__), "feedback limits")
         return cls(data["provider"], data["model"], data["backend"], data["image"],
                    GenerationLimits(**generation), ExecutionLimits(**execution), FeedbackLimits(**feedback))
+
+
+@dataclass(frozen=True)
+class AugmentedConfiguration(FeedbackConfiguration):
+    @property
+    def strategy(self) -> str:
+        return "augmented"
+
+    def to_dict(self) -> dict:
+        return {"schema_version": 3, "strategy": self.strategy, **asdict(self)}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "AugmentedConfiguration":
+        data = require_fields(data, {"schema_version", "strategy", *cls.__dataclass_fields__}, "augmented configuration")
+        if type(data["schema_version"]) is not int or data["schema_version"] != 3 or data["strategy"] != "augmented":
+            raise ValidationError("augmented configuration: expected schema_version 3 and strategy augmented")
+        base = FeedbackConfiguration.from_dict({**data, "schema_version": 2, "strategy": "feedback"})
+        return cls(base.provider, base.model, base.backend, base.image, base.generation, base.execution, base.feedback)
