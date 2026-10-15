@@ -529,3 +529,27 @@ Day 7; no paid model adapter or live spending is authorized.
 - Commit: `feat: freeze and collect resumable offline studies`; next run and review
   a development pipeline pilot, freeze a separate final demonstration, and retain
   the explicit absence of measured LLM results.
+
+### Day 6 task 2 — Reviewed pilot and final-split demonstration
+
+- Task 1 pushed/verified: `c484bdbee5914e1f02f3b74020c9248b4b3774af`.
+- Froze development protocol `a6a00e0e...` before collection; all nine repair
+  requests completed before all nine scores. A/B/C used 3/1/6 mock calls and
+  passed 3/1/3 independent suites. Two unchanged B originals were accepted but
+  failed evaluation. Reviewed prompts, actual usage, outcomes and cleanup first.
+- Then froze separate final protocol `e2aca758...`, with the same source/runtime
+  and immutable image. No-op final mocks used 3/0/6 calls. Recorded zero observed
+  passes, four known failures and five unresolved candidate outcomes (two timeouts,
+  three unsubmitted C patches). Retained all cases; no silent retries/exclusions.
+- Both studies completed all 18 phase outcomes, resumed with zero new work/calls,
+  and confirmed cleanup for every logged job. No `vericode-job-*` remains.
+- Archived complete protocols/checkpoints/JSONL journals and byte-hash manifests
+  under `reports/day6/evidence`; source artifacts remain ignored. Archive hashes
+  and repair/score links were verified. Git attributes preserve exact evidence
+  bytes across platforms; no secret patterns found in the reviewed logs.
+- Total: 19 mock transport invocations, zero live calls/API dollars. Tokens remain
+  unknown except zero-call runs; local compute cost was not priced. Published an
+  explicit missing-measurement record. These are sandbox demonstrations, not a
+  funded pilot, live-model comparison, or generalisation evidence.
+- Commit: `data: preserve reviewed offline study evidence`; next traceable tables,
+  standalone plots, failure analysis, final validation and stop before Day 7.

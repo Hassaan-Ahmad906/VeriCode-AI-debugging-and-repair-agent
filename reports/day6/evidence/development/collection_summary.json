@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "protocol_id": "c1762e64-c01f-4f96-89e0-d5a18a759352",
+  "protocol_sha256": "a6a00e0ed6da9d3f1728bbb751467412dba50c88e106aee5748d55726e4595f6",
+  "run_kind": "sandbox_smoke",
+  "measured_llm_results_available": false,
+  "expected_repairs": 9,
+  "completed_repairs": 9,
+  "completed_scores": 9,
+  "pending": 0,
+  "usage": {
+    "model_calls": 10,
+    "input_tokens": null,
+    "known_input_tokens": 0,
+    "output_tokens": null,
+    "known_output_tokens": 0,
+    "cost_usd": 0.0,
+    "known_cost_usd": 0.0,
+    "usage_complete": false
+  },
+  "evaluation": {
+    "tasks": 9,
+    "evaluation_passed": 7,
+    "evaluation_failed": 2,
+    "evaluation_unknown": 0,
+    "candidate_execution_statuses": {
+      "passed": 7,
+      "failed": 2
+    },
+    "evaluation_pass_fraction": 0.7777777777777778,
+    "observed_pass_lower_bound": 0.7777777777777778,
+    "observed_pass_upper_bound": 0.7777777777777778,
+    "baseline_passes_with_known_candidate": 0,
+    "regressions": 0,
+    "regression_fraction": null,
+    "accepted_with_known_evaluation": 9,
+    "accepted_but_failed": 2,
+    "accepted_but_failed_fraction": 0.2222222222222222,
+    "infrastructure_errors": 0
+  },
+  "archive_kind": "completed pipeline demonstration evidence"
+}

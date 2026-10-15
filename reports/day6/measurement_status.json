@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "measured_llm_results_available": false,
+  "live_model_calls": 0,
+  "reason": "No live model adapter or explicitly configured paid budget exists. Offline tooling and sandbox demonstrations were completed instead.",
+  "paid_api_enabled": false,
+  "mock_transport_calls": 19,
+  "known_api_cost_usd": 0.0,
+  "total_input_tokens": null,
+  "total_output_tokens": null,
+  "local_compute_cost_measured": false,
+  "studies": [
+    {"role": "development pipeline pilot", "protocol_sha256": "a6a00e0ed6da9d3f1728bbb751467412dba50c88e106aee5748d55726e4595f6", "evidence": "evidence/development"},
+    {"role": "final-split pipeline demonstration", "protocol_sha256": "e2aca7584c157730f2fe41e67e65a9d1bbffc323f71a4a93142e06ab1bb9f2e4", "evidence": "evidence/final"}
+  ]
+}
