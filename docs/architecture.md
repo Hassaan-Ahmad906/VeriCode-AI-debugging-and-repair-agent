@@ -69,7 +69,7 @@ feed back to the provider. `run_config.py` records limits, backend, and provider
 selection. `direct_run.py` emits the patch, one attempt history, call ledger, and
 post-response visible outcomes. Invalid responses and invalid patches are separate.
 Default executor is mock; Docker is an explicit selection. Neither path loads
-evaluation assets. Strategy C is separate work.
+evaluation assets. Strategy C uses the same repair core after validating test proposals.
 
 `batch.py` coordinates sequential tasks from an immutable manifest/configuration.
 `checkpoints.py` owns bounded JSON/JSONL persistence, checksums, and a directory
@@ -93,3 +93,17 @@ call indices are global within the task. Every request and observed candidate
 execution is retained in typed history. Mock execution proposes once and stops
 with unknown acceptance; it cannot supply measured feedback. Existing direct
 request prompts and the order of strategy A remain unchanged.
+
+## Day 5 augmentation and evaluation
+
+`generated_tests.py` validates JSON cases against bounded specification rules and
+renders accepted assertions as literals. `augmented.py` charges generation calls
+before invoking B with the remaining budget and augmented repair-visible tests.
+Schema 3 records retain every accepted/discarded case and globally indexed usage.
+
+`benchmark.py` verifies frozen repair data without reading evaluator files. Pinned
+upstream references live under the audit-only data tree. `scoring.py` validates a
+completed repair record, then loads the separate frozen evaluation suite. It runs
+original and candidate source through the same isolated executor, never calls a
+provider, and emits a separate score record. `metrics.py` retains unknown outcomes
+and explicit denominators. `records.py` bounds saved-record input to 16 MiB.

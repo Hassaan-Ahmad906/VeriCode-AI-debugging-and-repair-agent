@@ -46,7 +46,7 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 - [x] Task 2: inspect original QuixBugs license, attribution, references, and test behaviour
   before importing anything. Pin a suitable revision; record all inconsistencies
   and exclusions. Freeze disjoint development and final task manifests.
-- Implement independent evaluation and metrics; accept a test showing that an
+- [x] Task 3: implement independent evaluation and metrics; accept a test showing that an
   overfitted visible-test success fails the evaluation suite.
 
 ## Day 6 — Experiments and analysis

@@ -20,6 +20,8 @@ from vericode.model_io import GenerationLimits
 from vericode.run_config import AugmentedConfiguration, FeedbackConfiguration, RunConfiguration
 from vericode.sandbox_policy import DEFAULT_IMAGE, ExecutionLimits
 from vericode.schemas import ValidationError
+from vericode.scoring import score_record
+from vericode.records import read_record
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -70,6 +72,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     batch.add_argument("--data-root", type=Path, default=Path("data"))
     batch.add_argument("--run-dir", type=Path, required=True)
     batch.add_argument("--resume", action="store_true", help="skip completed outcomes; never replay uncertain started tasks")
+    evaluate = commands.add_parser("evaluate", help="independently score a saved repair; never sends feedback to models")
+    evaluate.add_argument("--record", type=Path, required=True)
+    evaluate.add_argument("--data-root", type=Path, default=Path("data"))
+    evaluate.add_argument("--backend", choices=("mock", "docker"), default="mock")
+    evaluate.add_argument("--image", default=DEFAULT_IMAGE)
+    evaluate.add_argument("--timeout", type=float, default=10.0)
+    evaluate.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "list-tasks":
@@ -108,6 +117,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             if record["status"] in ("infrastructure_error", "provider_error", "transport_error", "transient_error", "paid_execution_disabled"):
                 return 2
             return 0 if record["status"] in ("candidate_ready", "visible_passed") else 1
+        elif args.command == "evaluate":
+            if args.output and (args.output.exists() or args.output.is_symlink()):
+                raise FileExistsError(f"output already exists: {args.output}")
+            config = RunConfiguration(backend=args.backend, image=args.image, execution=ExecutionLimits(wall_seconds=args.timeout))
+            record = score_record(args.data_root, read_record(args.record), config)
+            if args.output:
+                write_run(args.output, record)
+            print(json.dumps(record, indent=2, ensure_ascii=True, allow_nan=False))
+            if record["status"] == "infrastructure_error":
+                return 2
+            return 0 if record["suite_passed"] is True or args.backend == "mock" else 1
         elif args.command == "batch":
             config = RunConfiguration.from_dict(read_json(args.config))
             result = run_batch(args.data_root, args.manifest, config, args.run_dir, resume=args.resume)

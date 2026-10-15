@@ -89,3 +89,16 @@ seen exact source cannot yield new deterministic test evidence, so stop before
 running it again. Log that response's usage and preserve the last checked patch.
 Stopping rules bound effort; only an independent evaluator can assess whether
 visible acceptance overfits the available tests.
+
+## Independent expectations and evaluation
+
+A generated assertion is useful only if its expected value has support beyond the
+same model or buggy program. VeriCode accepts bounded JSON inputs/expectations
+against specification rules, then renders literal assertions. Agreement with the
+buggy implementation is never the validator. Rejected cases remain in the log.
+
+An independent evaluator runs after repair, on tests absent from its requests.
+An accepted-but-failing patch exposes weak visible coverage. A regression requires
+an observed original-suite pass followed by a candidate-suite failure. A timeout
+has unknown suite outcome; retaining it in the denominator prevents silent
+survivorship bias. Missing-outcome bounds are not statistical confidence intervals.

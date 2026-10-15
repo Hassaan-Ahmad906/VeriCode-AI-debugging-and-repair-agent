@@ -10,12 +10,13 @@ upper budget does not make these methods compute-matched.
 
 ## Status
 
-Day 4 is complete: direct repair A, feedback-guided repair B, structured mock
-completions, per-call usage, bounded Docker execution, and resumable batches work.
-Paid API execution is disabled. No live-model experiment
-or final evaluation has been performed. See [PLAN.md](PLAN.md) and
+Day 5 is complete: test-augmented repair C, independently checked generated expectations,
+a pinned three-task QuixBugs subset, frozen splits, and independent scoring.
+A/B, usage accounting, Docker execution, and resumable batches remain available.
+Paid API execution is disabled. No live-model experiment has been performed. See [PLAN.md](PLAN.md) and
 [PROGRESS.md](PROGRESS.md) for acceptance criteria and the next session.
-The final Day 4 suite passed 207 engineering checks, including 22 Docker checks.
+Engineering checks and reference audits are separate from model-performance results.
+The Day 5 full suite passed 236 checks, including 25 Docker checks.
 
 ## Setup
 
@@ -130,8 +131,8 @@ adapter contract. See [provider boundary](docs/providers.md).
 
 `agent_accepted` describes the controller's visible-suite decision. It is true for
 visible passes, false for rejected/failed patches, and unknown for mock or
-unresolved execution. `evaluation` remains null until the independent evaluator
-is implemented. The `demo` command retains its original mock-only demonstration.
+unresolved execution. `evaluation` remains null inside repair records; independent
+scores are saved separately. The `demo` command retains its mock-only demonstration.
 
 Run all development tasks with a fixed configuration, then resume:
 
@@ -193,5 +194,18 @@ proven correct.
 
 Read [architecture](docs/architecture.md), the [draft experiment protocol](docs/experiment_protocol.md),
 [limitations](docs/limitations.md), and [learning notes](docs/learning_notes.md).
-Strategy C, budgeted API adapters, independent evaluation, benchmark
-integration, analysis, and the UI are later sessions. This is not a release-ready system.
+Read [generated tests](docs/generated_tests.md), [benchmark provenance](docs/benchmark.md),
+and [independent evaluation](docs/evaluation.md). Budgeted API adapters, experiment
+analysis, and the UI remain later work. This is not a release-ready system.
+
+Run C and then score its saved patch independently (start Docker first):
+
+```powershell
+.\.venv\Scripts\python.exe -m vericode augment --task sum_positive --backend docker --output artifacts/new-c-repair.json
+.\.venv\Scripts\python.exe -m vericode evaluate --record artifacts/new-c-repair.json --backend docker --output artifacts/new-c-score.json
+```
+
+Omit `--backend docker` for entirely mock execution with unknown test outcomes.
+Use `configs/offline_augmented.json` with the batch command for development C runs.
+Final tasks are three disjoint `quix_*` fixtures; their repair mock emits unchanged
+source. Scoring never returns evaluator feedback to a repair provider.

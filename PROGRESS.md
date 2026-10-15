@@ -461,3 +461,44 @@ then stop before Day 7. Paid API execution remains disabled.
   all vendored content; project-authored whitespace checks remain enabled.
 - Commit: `feat: add pinned QuixBugs subset and frozen data splits`; next independent
   post-repair scoring, regression metrics and an overfit rejection check.
+
+### Day 5 task 3 — Independent evaluator and metrics
+
+- Task 2 pushed/verified: `84cfe40c864b8261512f0eef13ac72c3bb522b90`.
+- Added post-repair scoring with task/configuration/source/suite validation,
+  original baseline and final-candidate observations, immutable repair artifacts,
+  separate evaluation records, no provider calls and no feedback into repair.
+- Added regression and accepted-but-failing metrics with explicit denominators,
+  unknown outcomes, execution-status counts and missing-outcome bounds. Missing/
+  rejected candidates are not executed or credited. Cleanup failure stops jobs.
+- Saved-record parsing is bounded to 16 MiB, accepts real attempt-history sizes,
+  and rejects duplicate/non-finite JSON. Small dataset/config readers stay bounded.
+- Acceptance: the unchanged positive-sum program passes visible tests with zero
+  B calls, then fails independent evaluation; a scripted clamp repair passes.
+  Original failures remain distinct from regressions and unresolved executions.
+- Checks: all 236 passed in 89.46 seconds, including 25 Docker checks; XML confirms
+  zero failures/errors/skips (`artifacts/day5-final-checks.xml`, ignored). Dependency,
+  whitespace and secret-pattern checks passed. No candidate/test host execution.
+- Commit: `feat: add independent scoring and regression metrics`.
+
+### Day 5 completion
+
+All three tasks are complete. Commands and boundaries are documented in
+`docs/generated_tests.md`, `docs/benchmark.md` and `docs/evaluation.md`. Paid
+execution remains disabled. Engineering checks/reference audits do not measure
+LLM performance. The final subset is public, small, adapted and inspected.
+
+```powershell
+.\.venv\Scripts\python.exe -m vericode augment --task sum_positive --backend docker --output artifacts/new-repair.json
+.\.venv\Scripts\python.exe -m vericode evaluate --record artifacts/new-repair.json --backend docker --output artifacts/new-score.json
+```
+
+Understanding checks: Why reject an expected value that matches buggy code?
+What distinguishes a regression from an already-failing original? Why does a
+timeout leave the evaluation-suite outcome unknown?
+
+Continue to Day 6 today under the user's explicit two-session authorization:
+freeze actual configurations/identities before collection, verify conservative
+resumption and accounting, run only offline/sandbox demonstrations, then produce
+traceable analysis and explicitly record missing live-model results. Stop before
+Day 7; no paid model adapter or live spending is authorized.
