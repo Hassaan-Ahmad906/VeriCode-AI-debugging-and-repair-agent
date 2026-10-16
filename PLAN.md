@@ -62,6 +62,6 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 ## Day 7 — Demo and portfolio release
 
 - [x] Add a local Streamlit UI sharing CLI backend and execution safeguards.
-- Write a concise research report with actual results if available and limitations.
+- [x] Write a concise research report with actual results if available and limitations.
 - Polish attribution, offline CI, fresh-install instructions, and two-minute demo.
   Tag a release only after documented release criteria pass.

@@ -1,5 +1,23 @@
 # Progress
 
+## 2026-10-16 — Day 7 task 2: evidence-based report
+
+- Task 1 UI pushed and remote hash verified:
+  `76a32267feaf26c1de3924f6f111f4818991244d`.
+- Added `reports/research_report.md`: question, A/B/C methods, execution/data
+  boundaries, six rows from the frozen Day 6 analysis, failure interpretation,
+  actual 19 mock calls/$0 API, missing live measurements and primary related work.
+- Explicitly distinguished the new local-model/LoRA extension from historical
+  scripted evidence. No cloud training or fine-tuning improvement is claimed.
+- Review: table reconciled with `reports/day6/analysis/summary.csv`; checked
+  original papers/model/API documentation. Earlier adapter refactoring required
+  updating a provider-injection test to its new factory; that targeted suite now
+  passes. Full Docker verification is in progress alongside the runtime download.
+- Concept: independent tests can reject agent-accepted code; visible success,
+  training loss and independent correctness are different observations.
+- Next: finish free local runtime/model, customization notebook, release CI/setup
+  and final verification. Commit: `docs: report methods and scripted evidence`.
+
 ## 2026-10-16 — Day 7 task 1: local interface
 
 - User authorized completing the system. Added an optional pinned Streamlit UI,
