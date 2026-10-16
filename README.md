@@ -24,6 +24,16 @@ Final verification passed 254 checks, including 26 Docker checks.
 
 ## Setup
 
+For the local interface, install the optional UI and run from this checkout:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e ".[dev,ui]"
+.\.venv\Scripts\python.exe -m vericode.ui_launcher
+```
+
+Open http://127.0.0.1:8501. See [UI instructions](docs/ui.md). Candidate code
+runs only in Docker when selected; mock execution leaves test outcomes unknown.
+
 Requires Python 3.11+ (developed on Python 3.13.5) and Git. Run from the repository
 root. The runtime package has no third-party dependencies. Build and direct test
 dependencies are pinned in `pyproject.toml`; this is not a complete transitive lock.

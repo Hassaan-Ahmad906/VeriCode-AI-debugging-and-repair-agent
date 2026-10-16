@@ -1,5 +1,24 @@
 # Progress
 
+## 2026-10-16 — Day 7 task 1: local interface
+
+- User authorized completing the system. Added an optional pinned Streamlit UI,
+  loopback-only launcher, source/diff/history/usage views, JSON downloads and a
+  separate independent-evaluation action using the existing CLI controllers.
+- Configuration changes discard stale results; unconfirmed cleanup blocks jobs.
+  No candidate/test execution on the host. Mock remains the default.
+- Checks: existing baseline 228 passed with 26 Docker opt-in skips; five new
+  Streamlit AppTest/launcher checks passed, including evaluator separation,
+  stale-result invalidation and cleanup blocking. Streamlit 1.64.0 installed.
+- User expanded scope to local models, API settings and model customization,
+  then chose free-only operation and approved the local runtime/model download.
+  No paid API or cloud spending is authorized. Laptop: i7-1355U, about 16 GB RAM,
+  Intel Iris Xe; no NVIDIA GPU. Prepare a free-GPU LoRA workflow, not a claim of
+  training a competitive coding language model from scratch on this laptop.
+- Next: finish local inference integration/setup; prepare customization workflow;
+  complete report, CI, fresh-install verification, demo and release checks.
+- Commit: `feat: add local Streamlit repair interface`; hash reported after push.
+
 ## 2026-10-09 — Day 1
 
 Inspection: empty directory; no applicable `AGENTS.md`, Git history, remotes, or

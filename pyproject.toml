@@ -13,9 +13,11 @@ dependencies = []
 [project.optional-dependencies]
 dev = ["pytest==8.4.2"]
 analysis = ["matplotlib==3.10.8"]
+ui = ["streamlit==1.64.0"]
 
 [project.scripts]
 vericode = "vericode.cli:main"
+vericode-ui = "vericode.ui_launcher:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
