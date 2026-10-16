@@ -1,5 +1,34 @@
 # Progress
 
+## 2026-10-16 — Day 7 task 3: local prototype delivery
+
+- Workspace/model commit pushed and verified: `e170ada6cc1a86ec5ece19c3d97d1a7e7dc9b4fd`.
+- Completed attribution, fresh setup/release criteria, two-minute demo and offline
+  CI for Python 3.11/3.13; official v7 actions pinned to verified commit hashes.
+- Full suite: 273 passed including 27 Docker checks. Fresh editable environment:
+  246 offline passed, 27 explicit Docker skips; dependency consistency passed.
+  Final schema/UI refinements passed 15 targeted checks. Real UI/model/Docker
+  repair passed 2 visible and 3 independent tests; all failed trials retained.
+- Built/installed wheel in a separate environment without dependencies/network;
+  task listing/mock demo passed. All workspace/model modules are packaged.
+  Evidence checksums and secret-pattern review passed; no VeriCode jobs remain.
+- Local UI and free model server remain running because the user requested them.
+  Visually reviewed desktop/models/training/history/research/mobile screens;
+  refined responsive metrics and mobile navigation. Final packaging/CI/tag
+  verification follows this commit; remote CI is not assumed to have passed.
+- Required from owner: sign in to Colab, choose an available free GPU and run the
+  smoke/full training/export notebook. No cloud training, custom trained weights
+  or measured fine-tuning improvement is claimed. Hosted paid APIs stay disabled.
+- Next session: verify Git/remotes, inspect actual Colab manifest/adapter if
+  produced, validate the export, then freeze a base-versus-adapter comparison.
+- Start UI: `.\.venv\Scripts\python.exe -m vericode.ui_launcher`; localhost:8501.
+  Start model after reboot: `powershell -File scripts/start-local-model.ps1`.
+  For real AI select Local Ollama, B feedback and Docker in the workbench.
+- Understanding checks: Why does a response schema not prove correctness? Why
+  does lower training loss not prove better repairs? Why retain failed trials?
+- Commit: `chore: finish local prototype release workflow`; final hash and any
+  verified tag are reported after push. A commit cannot contain its own hash.
+
 ## 2026-10-16 — Professional workspace and real free model
 
 - Training workflow pushed and verified:

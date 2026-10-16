@@ -63,5 +63,13 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 
 - [x] Add a local Streamlit UI sharing CLI backend and execution safeguards.
 - [x] Write a concise research report with actual results if available and limitations.
-- Polish attribution, offline CI, fresh-install instructions, and two-minute demo.
+- [x] Polish attribution, offline CI, fresh-install instructions, and two-minute demo.
   Tag a release only after documented release criteria pass.
+
+## Free model customization extension (requested during Day 7)
+
+- [x] Install and verify a free CPU coding model; integrate with CLI/UI and Docker.
+- [x] Prepare self-authored data, free-GPU LoRA notebook and laptop export recipe.
+- [ ] Owner starts a free Colab GPU session; run training and export, retain actual
+  results, then independently compare base and adapted models. No GPU session or
+  account access exists in this local environment, so training is not claimed.

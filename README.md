@@ -10,17 +10,31 @@ upper budget does not make these methods compute-matched.
 
 ## Status
 
-Days 5 and 6 are complete: test-augmented repair C, independently checked generated
-expectations, a pinned three-task QuixBugs subset, frozen studies, independent
-scoring and traceable demonstration analysis.
-A/B, usage accounting, Docker execution, and resumable batches remain available.
-Paid API execution is disabled. No live-model experiment has been performed. See [PLAN.md](PLAN.md) and
-[PROGRESS.md](PROGRESS.md) for acceptance criteria and the next session.
+The local system includes A/B/C repair, independently checked generated cases,
+Docker execution, independent scoring, frozen mock studies, traceable analysis,
+a Streamlit UI and a free local Ollama adapter. Model tags are configurable;
+custom pasted functions support local-model A/B repair. Hosted paid APIs remain
+disabled under the user's free-only policy. Historical study evidence is scripted;
+no controlled measured LLM comparison or completed GPU training is claimed.
+See [PLAN.md](PLAN.md), [PROGRESS.md](PROGRESS.md) and the
+[research report](reports/research_report.md).
 Engineering checks and reference audits are separate from model-performance results.
 The reviewed [Day 6 report](reports/day6/analysis/report.md) includes complete
 evidence, tables and figures. Its 19 calls are mock transport invocations, with
 zero paid calls; these observations do not measure LLM performance.
-Final verification passed 254 checks, including 26 Docker checks.
+Day 7 verification includes the full controller, UI and Docker checks; see
+[release criteria](docs/release.md) and [progress](PROGRESS.md) for exact results.
+
+For the 16 GB laptop without a GPU, use [free local CPU inference](docs/local-model.md).
+The [Day 7 model checks](reports/day7/README.md) preserve four real CPU inference
+attempts, including failures; feedback repair and its redesigned UI integration
+passed the fixture's visible and independent suites. These are development checks,
+not a controlled method comparison.
+For model customization, [open the free Colab LoRA notebook](https://colab.research.google.com/github/Hassaan-Ahmad906/VeriCode-AI-debugging-and-repair-agent/blob/master/notebooks/train_free_colab.ipynb).
+You must sign in and start an available free GPU runtime. Training/export are
+prepared recipes, not completed training results. See [training details](docs/training.md).
+See the [two-minute demo](docs/demo.md), [setup and release criteria](docs/release.md)
+and [third-party attribution](NOTICE.md).
 
 ## Setup
 
@@ -57,7 +71,9 @@ python3 -m venv .venv
 
 Installation may need internet access; the Day 1 workflow itself is offline.
 `.env.example` documents future configuration names, with no credentials.
-No live model adapter is enabled or implemented yet.
+No hosted paid model adapter is enabled. The optional local Ollama adapter needs
+a separately installed local runtime/model; keys are unnecessary. The UI's hosted
+API-key fields remain disabled in free-only mode.
 
 Run the controller tests and an offline demonstration:
 
@@ -209,8 +225,9 @@ proven correct.
 Read [architecture](docs/architecture.md), the [experiment protocol](docs/experiment_protocol.md),
 [limitations](docs/limitations.md), and [learning notes](docs/learning_notes.md).
 Read [generated tests](docs/generated_tests.md), [benchmark provenance](docs/benchmark.md),
-and [independent evaluation](docs/evaluation.md). Budgeted API adapters and the
-Day 7 local UI/release work remain unfinished. This is not a release-ready system.
+and [independent evaluation](docs/evaluation.md). Hosted budgeted API adapters
+remain unavailable. The local UI, CPU inference and free GPU customization recipe
+are documented separately from historical scripted evidence.
 
 Run C and then score its saved patch independently (start Docker first):
 
