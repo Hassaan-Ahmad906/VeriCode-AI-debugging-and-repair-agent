@@ -48,6 +48,48 @@ def test_notebook_cells_compile_and_have_no_fabricated_outputs():
 import pytest
 
 
+@pytest.mark.parametrize("origin", [
+    "https://github.com/Hassaan-Ahmad906/VeriCode-AI-debugging-and-repair-agent.git",
+    "https://github.com/another-owner/another-project.git",
+    None,
+])
+def test_colab_setup_rerun_preserves_existing_checkout_and_rejects_unrelated_folder(tmp_path, monkeypatch, origin):
+    import subprocess
+    root = Path(__file__).resolve().parents[1]
+    notebook = json.loads((root / "notebooks/train_free_colab.ipynb").read_text(encoding="utf-8"))
+    source = "".join(notebook["cells"][3]["source"])
+    checkout = tmp_path / "VeriCode"
+    checkout.mkdir()
+    saved = checkout / "keep-my-work.txt"
+    saved.write_text("existing work", encoding="utf-8")
+    if origin:
+        subprocess.run(["git", "init", "--quiet", str(checkout)], check=True)
+        subprocess.run(["git", "-C", str(checkout), "remote", "add", "origin", origin], check=True)
+        subprocess.run(["git", "-C", str(checkout), "-c", "user.name=VeriCode test",
+                        "-c", "user.email=test@example.invalid", "commit", "--allow-empty", "--quiet", "-m", "fixture"], check=True)
+    source = source.replace("/content/VeriCode", checkout.as_posix())
+    original_run = subprocess.run
+    installs = []
+    def run(args, **kwargs):
+        if "pip" in args:
+            installs.append(args)
+            return subprocess.CompletedProcess(args, 0)
+        if "clone" in args:
+            pytest.fail("An existing folder must not be cloned over")
+        return original_run(args, **kwargs)
+    monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.chdir(tmp_path)
+    if origin and "Hassaan-Ahmad906" in origin:
+        exec(compile(source, "colab-setup", "exec"), {})
+        exec(compile(source, "colab-setup-rerun", "exec"), {})
+        assert len(installs) == 2
+    else:
+        with pytest.raises(RuntimeError, match="Existing"):
+            exec(compile(source, "colab-setup", "exec"), {})
+        assert not installs
+    assert saved.read_text(encoding="utf-8") == "existing work"
+
+
 @pytest.mark.docker
 def test_authored_training_targets_pass_their_examples_in_docker(docker_executor):
     rows = build_examples(variants=1)

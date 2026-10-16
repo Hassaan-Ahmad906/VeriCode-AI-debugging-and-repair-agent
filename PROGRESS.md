@@ -1,5 +1,19 @@
 # Progress
 
+## 2026-10-16 — Colab checkout rerun fix
+
+- Owner supplied the actual checkout-cell `FileExistsError`: `/content/VeriCode`
+  already exists. No CUDA or training failure is established by this traceback.
+- Setup now reuses an existing checkout only after verifying its Git root and
+  intended origin. It does not delete files, pull/reset revisions or overwrite
+  training outputs. Imports are self-contained for replacement-cell execution.
+- Six training/notebook checks passed, including real temporary Git checkouts
+  exercising repeated setup, a foreign origin and a non-Git folder. One explicit
+  Docker target audit was skipped because this fix does not change execution.
+- Updated the recovery instructions. Existing Colab tabs need the replacement
+  cell; a repository push does not edit an already-open notebook.
+- Training completion and artifacts remain unverified until supplied by owner.
+
 ## 2026-10-16 — Dark workspace, user-owned APIs and deployment preparation
 
 - Rebuilt the interface around a focused Overview and separate Repair, Runs,

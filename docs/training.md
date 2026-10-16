@@ -13,6 +13,12 @@ needed. If the free tier offers no GPU, stop and retry later. The assistant cann
 sign in, allocate a GPU under your account or run this notebook from the local
 workspace. No GPU training result or trained adapter is claimed in this release.
 
+If the checkout cell previously raised `FileExistsError` for `/content/VeriCode`,
+replace that cell with the current notebook's setup cell and run it again. It
+verifies the checkout root and GitHub origin, then reuses the existing revision
+without pulling, deleting files or discarding training outputs. Continue from
+the next cell; do not reset a working GPU runtime to fix a checkout rerun.
+
 The notebook:
 
 1. Requires CUDA before training; pins Transformers, PEFT, bitsandbytes and
