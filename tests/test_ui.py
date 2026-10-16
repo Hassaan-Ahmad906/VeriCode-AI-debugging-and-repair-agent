@@ -67,3 +67,32 @@ def test_unconfirmed_cleanup_blocks_next_ui_job(monkeypatch):
     assert not at.exception
     assert at.button(key="run_repair").disabled
     assert at.button(key="evaluate").disabled
+
+
+def test_custom_input_requires_real_local_provider_and_api_keys_are_disabled(monkeypatch):
+    at = app(monkeypatch)
+    at.button(key="nav_Model settings").click().run()
+    assert next(field for field in at.text_input if field.label == "API key").disabled
+    at.button(key="nav_Repair workbench").click().run()
+    at.selectbox(key="input_mode").select("custom function").run()
+    assert at.warning
+    at.button(key="run_repair").click().run()
+    assert "repair" not in at.session_state
+
+
+def test_workspace_navigation_preserves_configuration_and_history(monkeypatch):
+    at = app(monkeypatch)
+    at.selectbox(key="task_id").select("clamp").run()
+    at.button(key="run_repair").click().run()
+    at.button(key="nav_Run history").click().run()
+    assert not at.exception and len(at.session_state["run_history"]) == 1
+    at.button(key="nav_Model settings").click().run()
+    at.text_input(key="local_model_tag").set_value("my-trained-model").run()
+    at.button(key="nav_Training studio").click().run()
+    assert not at.exception
+    at.button(key="nav_Research & reports").click().run()
+    assert not at.exception
+    at.button(key="nav_Repair workbench").click().run()
+    assert not at.exception
+    assert at.selectbox(key="task_id").value == "clamp"
+    assert at.text_input(key="local_model_tag").value == "my-trained-model"

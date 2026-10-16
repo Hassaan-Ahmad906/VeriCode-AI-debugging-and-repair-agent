@@ -3,7 +3,10 @@
 `model_io.py` defines requests, responses, generation limits, and usage. The
 existing `providers.py` API remains available. `model_calls.py` wraps a trusted
 transport and validates its model-produced JSON. MockProvider uses that same
-boundary with a deterministic JSON transport; no hosted model adapter exists.
+boundary with a deterministic JSON transport; no hosted paid model adapter exists.
+The optional [local Ollama adapter](local-model.md) uses fixed loopback HTTP with
+cloud disabled. It supplies actual reported token usage when available and $0
+API cost; local model runs are distinct from the historical mock study.
 
 The transport receives one string containing only the specification, original
 source, repair-visible tests, and task metadata, plus a configured model identifier,

@@ -1,5 +1,16 @@
 # Architecture
 
+Current entry points are the CLI and optional local Streamlit workspace.
+`ui_service.py` dispatches the same repair/scoring controllers; `workspace_ui.py`
+renders workbench, session history, model settings, training and evidence screens.
+`providers.make_provider` selects scripted mocks or the fixed-loopback local
+Ollama adapter. The latter requests structured JSON and reports actual usage;
+hosted paid adapters remain disabled. Frozen demonstration studies/batches remain
+mock-only so historical claims cannot silently become live-model measurements.
+`training_data.py` and the separate Colab scripts prepare optional free-GPU LoRA
+customization. They do not load benchmark/evaluator data or execute generated code.
+The day-by-day sections below document how the system reached this architecture.
+
 The host controller loads repair-visible JSON into a frozen `RepairTask`.
 It contains the specification, original source, visible tests, and one canonical
 filename, `solution.py`. The loader reads bounded data; it never imports fixture

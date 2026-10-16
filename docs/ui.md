@@ -11,6 +11,21 @@ Open http://127.0.0.1:8501. The launcher binds only to loopback, disables usage
 telemetry and automatic browser launch, and accepts `--port` and `--data-root`.
 Stop with Ctrl+C. Never expose this code-execution controller publicly.
 
+The workspace has five screens: Repair workbench, Run history, Model settings,
+Training studio, and Research & reports. The workbench puts original source and
+patch output side by side, with source/specification/test tabs, advanced limits,
+attempts, test observations and exports. Session counters use actual retained
+runs, not sample data. Recent history retains up to 20 records in memory.
+Navigation preserves configuration and custom input; download records before
+ending/restarting the browser session. This is a local single-user workspace,
+not an authenticated multi-user enterprise service.
+
+For actual AI, start the installed free local runtime, choose Local Ollama and
+its installed model tag, Docker sandbox, and B (feedback guided). Paste a custom
+function or choose a fixture. Model settings can check local model availability;
+Training studio opens the free Colab notebook. Hosted API fields are disabled in
+free-only mode. See [local model instructions](local-model.md).
+
 Select a development task, strategy and execution backend. Mock execution does
 not execute candidate code or tests; test outcomes remain unknown. Docker uses
 the same executor, image verification and limits as the CLI. Start Docker's Linux

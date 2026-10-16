@@ -12,7 +12,7 @@ from vericode.docker_executor import DockerExecutor
 from vericode.experiments import _git_revision
 from vericode.jobs import CandidateExecutor, MockJobExecutor
 from vericode.model_io import PROMPT_VERSION, RepairRequest, summarize_calls
-from vericode.providers import MockProvider
+from vericode.providers import make_provider
 from vericode.run_config import RunConfiguration
 from vericode.schemas import RepairTask, ValidationError
 from vericode.strategies import direct_repair
@@ -23,7 +23,7 @@ def make_executor(config: RunConfiguration) -> CandidateExecutor:
 
 
 def record_direct_task(task: RepairTask, config: RunConfiguration, executor: CandidateExecutor | None = None) -> dict:
-    provider = MockProvider(config.model, config.generation)
+    provider = make_provider(config)
     outcome = direct_repair(task, provider, executor if executor is not None else make_executor(config))
     calls = outcome.calls
     attempts = int(bool(calls))
@@ -31,7 +31,7 @@ def record_direct_task(task: RepairTask, config: RunConfiguration, executor: Can
     return {
         "schema_version": 1, "run_id": str(uuid4()),
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
-        "run_kind": "mock" if config.backend == "mock" else "sandbox_smoke",
+        "run_kind": "local_model_smoke" if config.provider == "ollama" else "mock" if config.backend == "mock" else "sandbox_smoke",
         "strategy": "direct", "package_version": __version__,
         "git_commit": _git_revision(), "task_id": task.task_id,
         "dataset_version": task.dataset_version, "split": task.split,
@@ -50,7 +50,7 @@ def record_direct_task(task: RepairTask, config: RunConfiguration, executor: Can
         "attempt_history": [{"attempt": 1, "status": outcome.status,
                              "candidate": asdict(outcome.candidate) if outcome.candidate else None}] if attempts else [],
         "limitations": [
-            "Scripted mock provider; no live model or final evaluation was used.",
+            "Local pretrained model demonstration; no generalisation claim." if config.provider == "ollama" else "Scripted mock provider; no live model or final evaluation was used.",
             "Post-response visible checks never feed back into direct repair.",
             "Visible-test success is not proof of correctness.",
             "Unknown failed-call usage remains unknown; known subtotals exclude it.",

@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "evaluation_id": "30de401b-b17f-44a9-8be8-3e2a1910cc14",
+  "created_at_utc": "2026-10-16T16:17:14.044885+00:00",
+  "run_kind": "sandbox_evaluation_smoke",
+  "repair_run_id": "02cb4aba-5d37-40ee-8c51-1e196d06f6e5",
+  "repair_record_sha256": "bdc156442aa71428ab437e082ac3abed6675bb59c9bebb4c58ec79d60bec313d",
+  "task_id": "clamp",
+  "dataset_version": "self-authored-v1",
+  "split": "development",
+  "strategy": "feedback",
+  "status": "scored",
+  "repair_status": "visible_passed",
+  "rejected_candidate": false,
+  "configuration": {
+    "schema_version": 2,
+    "strategy": "feedback",
+    "provider": "ollama",
+    "model": "qwen2.5-coder:1.5b",
+    "backend": "docker",
+    "image": "vericode-runner:day2",
+    "generation": {
+      "prompt_bytes": 65536,
+      "response_bytes": 65536,
+      "output_tokens": 512,
+      "max_transport_calls": 1,
+      "request_timeout_seconds": 30
+    },
+    "execution": {
+      "wall_seconds": 10.0,
+      "cpus": 0.5,
+      "memory_bytes": 268435456,
+      "pids": 32,
+      "workspace_bytes": 16777216,
+      "temporary_bytes": 8388608,
+      "output_bytes": 16384
+    },
+    "feedback": {
+      "max_attempts": 3,
+      "max_model_calls": 6,
+      "feedback_bytes": 8192
+    }
+  },
+  "suite_sha256": "16560d0a7a846d259ea77ebe083d6b074fc117f34fb25aa2197e3f357dcecc61",
+  "baseline_source_sha256": "4e5a8fb24a45accfa4ae5b342b80b9da1ab5401cf23af1887cbb4ee3bbae3f58",
+  "candidate_source_sha256": "23278352c591901b7bef174cc60e3823b7629054055d0dd9d4ae541b2485ba39",
+  "baseline_execution": {
+    "mode": "sandbox",
+    "status": "failed",
+    "tests_passed": 1,
+    "tests_failed": 2,
+    "duration_seconds": 1.750991699998849,
+    "detail": "Observed pytest outcome inside a constrained Docker container.",
+    "tests_errors": 0,
+    "tests_skipped": 0,
+    "output": "F.F\n=================================== FAILURES ===================================\n_____________________________ test_outside_bounds ______________________________\ntest_visible.py:5: in test_outside_bounds\n    assert clamp(10, -3, 4) == 4\nE   assert -3 == 4\nE    +  where -3 = clamp(10, -3, 4)\n________________________________ test_at_upper _________________________________\ntest_visible.py:11: in test_at_upper\n    assert clamp(4, -3, 4) == 4\nE   assert -3 == 4\nE    +  where -3 = clamp(4, -3, 4)\n-- generated xml file: /workspace/report-d1fe1d08bbff4851a37145f79f8ed8e1.xml --\n=========================== short test summary info ============================\nFAILED ../opt/vericode::test_outside_bounds - assert -3 == 4\nFAILED ../opt/vericode::test_at_upper - assert -3 == 4\n2 failed, 1 passed in 0.02s\n\nVERICODE_RESULT={\"status\": \"failed\", \"tests_passed\": 1, \"tests_failed\": 2, \"tests_errors\": 0, \"tests_skipped\": 0, \"exit_code\": 1, \"protocol\": \"17bfb40b42d74a89ae2b2dbea0787ecc\"}\n",
+    "output_truncated": false,
+    "exit_code": 1,
+    "cleanup_confirmed": true,
+    "job_name": "vericode-job-a03adf537d2c43c385aaa3098fd6722b",
+    "image_id": "sha256:9d860dea7272681240b58e11ce875725c772abb3205bddf726b72479a1ce1958"
+  },
+  "candidate_execution": {
+    "mode": "sandbox",
+    "status": "passed",
+    "tests_passed": 3,
+    "tests_failed": 0,
+    "duration_seconds": 1.6644057000012253,
+    "detail": "Observed pytest outcome inside a constrained Docker container.",
+    "tests_errors": 0,
+    "tests_skipped": 0,
+    "output": "...\n-- generated xml file: /workspace/report-b23d9df134454f4ab42a94e6384e208e.xml --\n3 passed in 0.01s\n\nVERICODE_RESULT={\"status\": \"passed\", \"tests_passed\": 3, \"tests_failed\": 0, \"tests_errors\": 0, \"tests_skipped\": 0, \"exit_code\": 0, \"protocol\": \"7c58191463bb446f85a410c923cabd40\"}\n",
+    "output_truncated": false,
+    "exit_code": 0,
+    "cleanup_confirmed": true,
+    "job_name": "vericode-job-a1c10995fd5c4ee3b178aa028dad06d7",
+    "image_id": "sha256:9d860dea7272681240b58e11ce875725c772abb3205bddf726b72479a1ce1958"
+  },
+  "baseline_suite_passed": false,
+  "suite_passed": true,
+  "agent_accepted": true,
+  "regression": false,
+  "accepted_but_failed": false,
+  "model_calls": 0,
+  "api_cost_usd": 0.0,
+  "controller_duration_seconds": 3.4334747000029893,
+  "limitations": [
+    "Post-repair observations are never supplied to a repair provider.",
+    "Unknown timeouts/test errors/infrastructure are separate from observed assertion failures.",
+    "Suite success is finite-test evidence, not proof; mock repairs do not measure LLM ability."
+  ]
+}

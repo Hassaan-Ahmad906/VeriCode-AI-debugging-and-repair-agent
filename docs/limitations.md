@@ -1,10 +1,11 @@
 # Current limitations
 
 - The local Docker runner, A/B/C and independent scoring work with scripted mocks.
-  There is no live model adapter or measured live-model repair result. Mock
+  A free local Ollama adapter is available, separately from the scripted studies.
+  There is no controlled measured live-model comparison or completed training. Mock
   execution must never report test passes.
 - Direct repair A now works with scripted mock proposals. It observes visible tests
-  only after proposal and cannot measure model ability. Network adapters and
+  only after proposal. Hosted paid adapters and
   enforceable spending caps are absent; the transport timeout is an adapter contract.
 - Batch checkpoints provide conservative local resumption, not exactly-once remote
   calls or authenticated provenance. Interrupted starts and stale locks require
@@ -28,14 +29,15 @@
   coverage, model nondeterminism, and single-file scope limit generalisation.
 - Direct dependencies are pinned; transitive dependencies are not locked across
   platforms. Setup currently needs package-index access. This is a local-only
-  project and is not ready for a public execution service or a release tag.
+  project and is not ready for a public execution service. Local prototype release
+  criteria are in `release.md`; a release tag does not establish research quality.
 - Feedback repair B works with scripted responses and real Docker observations.
   It may accept an unchanged buggy original whose visible tests pass. Deterministic
   response fixtures verify revision/control flow, not model reasoning or an A/B
   performance improvement. Exact-source repetition only detects textual cycles.
   Output clipping loses context; untrusted test output can still attempt prompt
-  injection despite the restricted fields and instruction. No feedback prompt has
-  been evaluated against a live model. Journal limits are finite; a full journal
+  injection despite the restricted fields and instruction. A local development
+  smoke check is separate from a controlled model comparison. Journal limits are finite; a full journal
   stops before another task rather than discarding history.
 - C validates expectations against reviewed bounded rules, not model agreement.
   Coverage remains narrow and oracle mistakes remain possible. Reference audits

@@ -50,18 +50,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     checks.add_argument("--image", default=DEFAULT_IMAGE)
     checks.add_argument("--timeout", type=float, default=10.0, help="attached execution seconds (0.5-60)")
     checks.add_argument("--output", type=Path, help="new JSON artifact; existing files are never overwritten")
-    repair = commands.add_parser("repair", help="strategy A: one mock response, then optional Docker visible checks")
+    repair = commands.add_parser("repair", help="strategy A: one provider response, then optional Docker visible checks")
     feedback = commands.add_parser("feedback", help="strategy B: bounded visible-feedback repair; mock by default")
     augment = commands.add_parser("augment", help="strategy C: independently validated generated cases plus feedback")
     for command in (repair, feedback, augment):
         command.add_argument("--task", default="clamp")
         command.add_argument("--data-root", type=Path, default=Path("data"))
-        command.add_argument("--provider", choices=("mock",), default="mock")
-        command.add_argument("--model", default="scripted-v1", help="configured model identifier; mock uses scripted responses")
+        command.add_argument("--provider", choices=("mock", "ollama"), default="mock")
+        command.add_argument("--model", default="scripted-v1", help="model identifier; set an installed tag for --provider ollama")
         command.add_argument("--backend", choices=("mock", "docker"), default="mock")
         command.add_argument("--image", default=DEFAULT_IMAGE)
         command.add_argument("--timeout", type=float, default=10.0)
         command.add_argument("--max-output-tokens", type=int, default=2048)
+        command.add_argument("--request-timeout", type=float, default=15.0, help="model network timeout in seconds (0.1-30)")
         command.add_argument("--output", type=Path, help="new JSON artifact; existing files are never overwritten")
     repair.add_argument("--max-model-calls", type=int, default=3, help="transport call limit; one repair response")
     for command in (feedback, augment):
@@ -119,6 +120,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             if args.output and (args.output.exists() or args.output.is_symlink()):
                 raise FileExistsError(f"output already exists: {args.output}")
             generation = GenerationLimits(output_tokens=args.max_output_tokens,
+                                          request_timeout_seconds=args.request_timeout,
                                           max_transport_calls=args.max_model_calls if args.command == "repair" else args.max_transport_calls)
             execution = ExecutionLimits(wall_seconds=args.timeout)
             if args.command in ("feedback", "augment"):

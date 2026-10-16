@@ -20,6 +20,9 @@ def main(argv=None):
         sys.executable, "-m", "streamlit", "run", str(Path(__file__).with_name("ui.py")),
         "--server.address=127.0.0.1", f"--server.port={args.port}",
         "--server.headless=true", "--browser.gatherUsageStats=false",
+        "--theme.base=light", "--theme.primaryColor=#4255f5",
+        "--theme.backgroundColor=#f6f8fc", "--theme.secondaryBackgroundColor=#ffffff",
+        "--theme.textColor=#172036",
         "--server.fileWatcherType=none", "--", "--data-root", str(args.data_root.resolve()),
     ])
 

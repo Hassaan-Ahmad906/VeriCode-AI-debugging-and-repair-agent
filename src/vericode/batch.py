@@ -58,6 +58,8 @@ def _summary(checkpoint: Checkpoint, records: dict, total: int, skipped: int) ->
 
 def run_batch(data_root: Path, manifest_path: Path, config: RunConfiguration, directory: Path,
               *, resume: bool = False) -> dict:
+    if config.provider != "mock":
+        raise ValidationError("checkpoint batches currently require mock; use single-task local model runs")
     manifest = TaskManifest.load(manifest_path)
     if manifest.split != "development" or not 1 <= len(manifest.task_ids) <= 100:
         raise ValidationError("mock batch requires a development manifest with 1-100 fixed tasks")

@@ -30,6 +30,8 @@ def study_config(data: dict) -> dict[str, RunConfiguration]:
     configs = require_fields(data["strategies"], set(STRATEGIES), "study strategies")
     parsed = {name: RunConfiguration.from_dict(configs[name]) for name in STRATEGIES}
     direct = parsed["direct"]
+    if any(config.provider != "mock" for config in parsed.values()):
+        raise ValidationError("frozen demonstration studies require mock providers; local models need a separate measured protocol")
     for name, config in parsed.items():
         if config.strategy != name:
             raise ValidationError("study strategy/configuration mismatch")

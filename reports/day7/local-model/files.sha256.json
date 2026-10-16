@@ -1,0 +1,11 @@
+{
+  "day7-local-direct-score.json": "34eb09467a63eaecb890ec2c53318a92d6a09ad5683adde4b29b71788becf0db",
+  "day7-local-feedback-score.json": "4093b9fc4d6efd2f1ca63ec857b34b69faca371115e707e153d2ada35e98280e",
+  "day7-local-feedback.json": "f0d9434fef1ecd2ba09b3bb56ba7ba8ce6f26c9b5a340ea27e0dab755b02aeca",
+  "day7-local-repair.json": "1fa77f7d57d23a9b2c726148633d997cb68981937ca8e5b1e915aa6462d41270",
+  "day7-local-structured-repair.json": "df6ddbf884ecc38d2ebfa1d51eddfe7c7fdb3d02759b4fc5bc593e5d91a6a761",
+  "day7-ui-local-repair.json": "f0ac3a4b7407ad374461ceede1608df42b2daecf17d248348d8a7e336933cbde",
+  "day7-ui-local-score.json": "f45ae25afcf42def2afb88799d215e03aa11e09dfb9417fbc309c4e3651edaf0",
+  "ollama-model-manifest.json": "bc04f7197d2fd9741bff9713201e19b0b6083002bd00589cae2767bcdf24d808",
+  "summary.json": "a9f8bc3c6cc0ed3ae96a13d43c645ad98588eb713e10369c7925110cb17df638"
+}

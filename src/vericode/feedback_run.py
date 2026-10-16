@@ -13,14 +13,14 @@ from vericode.experiments import _git_revision
 from vericode.feedback import FEEDBACK_PROMPT_VERSION, feedback_repair
 from vericode.jobs import CandidateExecutor
 from vericode.model_io import summarize_calls
-from vericode.providers import MockProvider
+from vericode.providers import make_provider
 from vericode.run_config import FeedbackConfiguration
 from vericode.schemas import RepairTask, ValidationError
 
 
 def record_feedback_task(task: RepairTask, config: FeedbackConfiguration,
                          executor: CandidateExecutor | None = None) -> dict:
-    outcome = feedback_repair(task, MockProvider(config.model, config.generation),
+    outcome = feedback_repair(task, make_provider(config),
                               executor if executor is not None else make_executor(config), config.feedback)
     return record_feedback_outcome(task, config, outcome)
 
@@ -29,7 +29,7 @@ def record_feedback_outcome(task, config, outcome) -> dict:
     return {
         "schema_version": config.to_dict()["schema_version"], "run_id": str(uuid4()),
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
-        "run_kind": "mock" if config.backend == "mock" else "sandbox_smoke",
+        "run_kind": "local_model_smoke" if config.provider == "ollama" else "mock" if config.backend == "mock" else "sandbox_smoke",
         "strategy": config.strategy, "package_version": __version__,
         "git_commit": _git_revision(), "task_id": task.task_id,
         "dataset_version": task.dataset_version, "split": task.split,
@@ -52,7 +52,7 @@ def record_feedback_outcome(task, config, outcome) -> dict:
         "attempt_history": [asdict(attempt) for attempt in outcome.history],
         "controller_duration_seconds": outcome.duration_seconds,
         "limitations": [
-            "Scripted mock provider; no live-model or final-evaluation result.",
+            "Local pretrained model demonstration; no generalisation claim." if config.provider == "ollama" else "Scripted mock provider; no live-model or final-evaluation result.",
             "Visible-test success, including original-source success, is not proof of correctness.",
             "Test output is untrusted data; feedback projection is not a prompt-injection guarantee.",
             "Unknown failed-call usage remains unknown; known subtotals exclude it.",

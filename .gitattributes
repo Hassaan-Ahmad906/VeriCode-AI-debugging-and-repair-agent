@@ -3,3 +3,4 @@ data/benchmark/quixbugs/upstream/** -text
 data/benchmark/quixbugs/upstream/correct_python_programs/gcd.py whitespace=-blank-at-eof
 # Evidence hashes refer to exact bytes, including the collector's line endings.
 reports/day6/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+reports/day7/local-model/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

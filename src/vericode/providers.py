@@ -21,6 +21,13 @@ _SCRIPTED_REPLACEMENTS = {
 }
 
 
+def make_provider(config):
+    if config.provider == "ollama":
+        from vericode.local_provider import make_local_provider
+        return make_local_provider(config)
+    return MockProvider(config.model, config.generation)
+
+
 class MockTransport:
     offline = True
 

@@ -158,7 +158,7 @@ def test_maximum_attempt_history_fits_reserved_journal_record(data_root, tmp_pat
                                    feedback=FeedbackLimits(max_attempts=10, max_model_calls=10, feedback_bytes=16384))
     controlled_provider = provider(transport)
     controlled_provider.limits = config.generation
-    monkeypatch.setattr("vericode.feedback_run.MockProvider", lambda *args: controlled_provider)
+    monkeypatch.setattr("vericode.feedback_run.make_provider", lambda config: controlled_provider)
     large = replace(FAILED, output="\U0001f600" * 16384, detail="\u00e9" * 16000)
     record = record_feedback_task(task, config, ScriptedExecutor([large] * 11))
     assert record["status"] == "attempt_budget_exhausted" and len(record["attempt_history"]) == 10

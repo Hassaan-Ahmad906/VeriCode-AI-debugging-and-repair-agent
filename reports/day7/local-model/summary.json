@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "kind": "development engineering smoke checks, not a controlled experiment",
+  "model_tag": "qwen2.5-coder:1.5b",
+  "ollama_version": "0.40.5",
+  "model_manifest_sha256": "bc04f7197d2fd9741bff9713201e19b0b6083002bd00589cae2767bcdf24d808",
+  "current_local_adapter_sha256": "beca98cc31dce95d6b73bebec645b8da257e77eae9beac625484cc0d51f13db6",
+  "provenance_limit": "Records identify HEAD with local edits; initial JSON-only adapter differed from subsequent structured-schema adapter. No frozen code/model experiment or A/B effect is claimed.",
+  "trials": [
+    {
+      "file": "day7-local-repair.json",
+      "status": "invalid_response",
+      "usage": {
+        "attempts": 1,
+        "repair_responses": 1,
+        "model_calls": 1,
+        "input_tokens": 248,
+        "known_input_tokens": 248,
+        "output_tokens": 189,
+        "known_output_tokens": 189,
+        "cost_usd": 0.0,
+        "known_cost_usd": 0.0,
+        "usage_complete": true
+      }
+    },
+    {
+      "file": "day7-local-structured-repair.json",
+      "status": "visible_failed",
+      "usage": {
+        "attempts": 1,
+        "repair_responses": 1,
+        "model_calls": 1,
+        "input_tokens": 248,
+        "known_input_tokens": 248,
+        "output_tokens": 48,
+        "known_output_tokens": 48,
+        "cost_usd": 0.0,
+        "known_cost_usd": 0.0,
+        "usage_complete": true
+      }
+    },
+    {
+      "file": "day7-local-feedback.json",
+      "status": "visible_passed",
+      "usage": {
+        "repair_requests": 1,
+        "attempts": 1,
+        "repair_responses": 1,
+        "model_calls": 1,
+        "input_tokens": 487,
+        "known_input_tokens": 487,
+        "output_tokens": 65,
+        "known_output_tokens": 65,
+        "cost_usd": 0.0,
+        "known_cost_usd": 0.0,
+        "usage_complete": true
+      }
+    },
+    {
+      "file": "day7-ui-local-repair.json",
+      "status": "visible_passed",
+      "usage": {
+        "repair_requests": 1,
+        "attempts": 1,
+        "repair_responses": 1,
+        "model_calls": 1,
+        "input_tokens": 487,
+        "known_input_tokens": 487,
+        "output_tokens": 65,
+        "known_output_tokens": 65,
+        "cost_usd": 0.0,
+        "known_cost_usd": 0.0,
+        "usage_complete": true
+      }
+    }
+  ],
+  "total_model_calls": 4,
+  "input_tokens": 1470,
+  "output_tokens": 367,
+  "api_cost_usd": 0.0,
+  "cloud_training_completed": false
+}

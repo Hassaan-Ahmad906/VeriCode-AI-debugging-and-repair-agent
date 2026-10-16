@@ -1,5 +1,41 @@
 # Progress
 
+## 2026-10-16 — Professional workspace and real free model
+
+- Training workflow pushed and verified:
+  `546f5407971215eab2d983e42cd8cd3a11cc191d`.
+- Replaced the basic UI with a full local workspace: dark navigation, workbench,
+  code/spec/test tabs, diff/source/results/attempts, real session counters, recent
+  history, model settings, training studio and research evidence. Retains custom
+  inputs/configuration through navigation; responsive metrics and local theme.
+  This is a local single-user application, not an authenticated enterprise service.
+- Applied Sites skill's local-only guidance; no Site registration, sync, public
+  hosting or deployment. Visually inspected desktop workbench/models/training and
+  mobile rendering through a separate owned Edge session. Seven UI checks pass.
+- Downloaded official Ollama 0.40.5 portable CPU runtime, resumed the interrupted
+  download with strict byte-range validation, and verified full official SHA-256.
+  Installed qwen2.5-coder:1.5b, CPU-only, loopback-only, OLLAMA_NO_CLOUD=1, one model
+  and one request at a time. Runtime/weights remain ignored in artifacts.
+- Added local provider factory integration for A/B/C, real reported token usage,
+  bounded native HTTP with no proxies/redirects, cloud alias rejection, strict
+  response schemas, context/output allowance and safe failures. Hosted API fields
+  are disabled under the user's free-only choice; no credential is needed or saved.
+- Local attempts: JSON-only malformed A rejected; schema A kept a buggy original;
+  feedback B produced a changed patch, passed 2 visible/3 independent checks;
+  the redesigned UI independently ran B and passed both suites too. Four actual
+  local calls total, 1470 input/367 output tokens, $0 API cost. All trials retained
+  in reports/day7 with hashes, failures, model manifest and provenance limitations.
+  This single development fixture is not a controlled A/B effect measurement.
+- Checks: 273 full checks passed including 27 Docker tests; fresh virtual
+  environment passed 246 offline with 27 explicit Docker skips. Final schema/UI
+  refinements passed all 15 targeted checks; all 246 offline re-passed after the
+  local schema change. Actual redesigned UI + local model + Docker + independent
+  evaluator also passed, separate from the automated offline suite.
+- Concept: a structured response schema constrains answer shape, not correctness.
+  The independently observed failure and later feedback success remain distinct.
+- Next: final packaging/CI/setup checks, refresh live UI, commit/push and tag only
+  if local prototype criteria pass. Commit: `feat: build professional local repair workspace`.
+
 ## 2026-10-16 — Free cloud customization extension
 
 - User chose free-only local inference and free cloud training preparation; no
