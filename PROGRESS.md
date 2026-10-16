@@ -1,5 +1,29 @@
 # Progress
 
+## 2026-10-16 — Free cloud customization extension
+
+- User chose free-only local inference and free cloud training preparation; no
+  paid API/cloud budget is authorized. Added a Colab notebook with an explicit
+  CUDA preflight, pinned training dependencies, immutable base revision, two-step
+  smoke run, rank-8 4-bit LoRA, maximum three epochs and early stopping.
+- Added 120 self-authored training and 24 validation examples, split by operation
+  family; no benchmark/reference/evaluator reads. Prompt loss masking and context
+  rejection have coverage. All 12 authored target families passed in Docker.
+- Optional export merges the exact base, preserves its license and uses pinned
+  llama.cpp conversion/quantization plus a model checksum. Adapter and export
+  recipes are not GPU-runtime verified here; no trained model or improved repair
+  quality is claimed. User must sign in and start a free Colab GPU runtime.
+- Checks: three offline dataset/masking/notebook checks passed; target-example
+  Docker validation passed as part of all 272 system checks. Notebook has no
+  fabricated outputs. Training/merge scripts parse without importing GPU packages.
+- Report pushed/verified: `b727036daded8a2d50423b778186425d4f75faf0`.
+- User rejected the initial UI's visual quality. A professional workspace redesign
+  is in progress; navigation/persistence/history checks now pass (7 UI checks).
+- Runtime download timed out near 1.2 GB; added strict byte-range resume and kept
+  the partial download. Full SHA-256 is required before extraction/execution.
+- Next: visually verify workspace, finish real local-model smoke, release checks.
+  Commit: `feat: prepare free GPU adapter training and export`.
+
 ## 2026-10-16 — Day 7 task 2: evidence-based report
 
 - Task 1 UI pushed and remote hash verified:
