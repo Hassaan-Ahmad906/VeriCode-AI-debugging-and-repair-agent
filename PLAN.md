@@ -70,6 +70,16 @@ to a verified remote, and verify the push. Never rewrite history or force-push.
 
 - [x] Install and verify a free CPU coding model; integrate with CLI/UI and Docker.
 - [x] Prepare self-authored data, free-GPU LoRA notebook and laptop export recipe.
-- [ ] Owner starts a free Colab GPU session; run training and export, retain actual
-  results, then independently compare base and adapted models. No GPU session or
-  account access exists in this local environment, so training is not claimed.
+- [x] Owner starts a free Colab GPU session (GPU detected; cells running, owner
+  reported on 2026-10-16).
+- [ ] Receive the completed adapter/manifest and export; inspect actual results
+  and independently compare base and adapted models. The local assistant has no
+  access to that Colab runtime, so completed training is not yet claimed.
+
+## Dark workspace and hosted connections extension
+
+- [x] Separate Overview, Repair, Runs, Models & API, Usage, Training, Deployment
+  and Research sections with a dark application theme.
+- [x] User-owned OpenAI/OpenRouter key verification, official pricing/model
+  retrieval, per-session connections and explicit durable spending limits.
+- [x] Prepare private Linux deployment files; hosting selection remains with owner.

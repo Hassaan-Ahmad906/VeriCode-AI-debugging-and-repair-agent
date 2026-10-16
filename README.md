@@ -12,9 +12,11 @@ upper budget does not make these methods compute-matched.
 
 The local system includes A/B/C repair, independently checked generated cases,
 Docker execution, independent scoring, frozen mock studies, traceable analysis,
-a Streamlit UI and a free local Ollama adapter. Model tags are configurable;
-custom pasted functions support local-model A/B repair. Hosted paid APIs remain
-disabled under the user's free-only policy. Historical study evidence is scripted;
+a dark Streamlit workspace, a free local Ollama adapter and user-owned OpenAI /
+OpenRouter connections. Custom pasted functions support local or hosted A/B
+repair. Hosted calls require key verification and an explicit USD limit in the UI.
+Official prices are fetched during verification; usage identifies reported versus
+estimated costs. Historical study evidence is scripted;
 no controlled measured LLM comparison or completed GPU training is claimed.
 See [PLAN.md](PLAN.md), [PROGRESS.md](PROGRESS.md) and the
 [research report](reports/research_report.md).
@@ -71,9 +73,12 @@ python3 -m venv .venv
 
 Installation may need internet access; the Day 1 workflow itself is offline.
 `.env.example` documents future configuration names, with no credentials.
-No hosted paid model adapter is enabled. The optional local Ollama adapter needs
-a separately installed local runtime/model; keys are unnecessary. The UI's hosted
-API-key fields remain disabled in free-only mode.
+The optional local Ollama adapter needs a separately installed local runtime/model;
+keys are unnecessary. For hosted models, open **Models & API**, enter your own key,
+verify, choose a model, authorize a spending limit and connect. No credentials are
+saved in run records. See [provider details](docs/hosted-models.md).
+The [private deployment package](deploy/README.md) is prepared; hosting has not
+been selected or published.
 
 Run the controller tests and an offline demonstration:
 

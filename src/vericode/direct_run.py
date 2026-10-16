@@ -7,6 +7,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from vericode import __version__
+from vericode.hosted_provider import connection_metadata
 from vericode.datasets import TaskManifest
 from vericode.docker_executor import DockerExecutor
 from vericode.experiments import _git_revision
@@ -29,13 +30,13 @@ def record_direct_task(task: RepairTask, config: RunConfiguration, executor: Can
     attempts = int(bool(calls))
     responses = sum(call.status in ("completed", "invalid_response") for call in calls)
     return {
-        "schema_version": 1, "run_id": str(uuid4()),
+        "schema_version": 1, "run_id": str(uuid4()), **connection_metadata(),
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
-        "run_kind": "local_model_smoke" if config.provider == "ollama" else "mock" if config.backend == "mock" else "sandbox_smoke",
+        "run_kind": "hosted_model_run" if config.provider in ("openai", "openrouter") else "local_model_smoke" if config.provider == "ollama" else "mock" if config.backend == "mock" else "sandbox_smoke",
         "strategy": "direct", "package_version": __version__,
         "git_commit": _git_revision(), "task_id": task.task_id,
         "dataset_version": task.dataset_version, "split": task.split,
-        "configuration": config.to_dict(), "paid_api_enabled": False,
+        "configuration": config.to_dict(), "paid_api_enabled": config.provider in ("openai", "openrouter"),
         "prompt_version": PROMPT_VERSION, "prompt": RepairRequest(task).prompt(),
         "source_sha256": hashlib.sha256(task.source.encode("utf-8")).hexdigest(),
         "visible_tests_sha256": hashlib.sha256(task.repair_tests.encode("utf-8")).hexdigest(),
@@ -50,7 +51,7 @@ def record_direct_task(task: RepairTask, config: RunConfiguration, executor: Can
         "attempt_history": [{"attempt": 1, "status": outcome.status,
                              "candidate": asdict(outcome.candidate) if outcome.candidate else None}] if attempts else [],
         "limitations": [
-            "Local pretrained model demonstration; no generalisation claim." if config.provider == "ollama" else "Scripted mock provider; no live model or final evaluation was used.",
+            "Hosted tokens are provider-reported; hosted_connection identifies the cost basis. Provider invoices are authoritative." if config.provider in ("openai", "openrouter") else "Local pretrained model demonstration; no generalisation claim." if config.provider == "ollama" else "Scripted mock provider; no live model or final evaluation was used.",
             "Post-response visible checks never feed back into direct repair.",
             "Visible-test success is not proof of correctness.",
             "Unknown failed-call usage remains unknown; known subtotals exclude it.",

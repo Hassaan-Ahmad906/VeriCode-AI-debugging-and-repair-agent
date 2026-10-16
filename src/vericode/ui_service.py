@@ -18,10 +18,12 @@ def development_tasks(data_root: Path):
     return manifest.load_tasks(data_root / "repair")
 
 
-def repair_task(task, config):
+def repair_task(task, config, connection=None):
+    from vericode.hosted_provider import use_connection
     controller = {"direct": record_direct_task, "feedback": record_feedback_task,
                   "augmented": record_augmented_task}[config.strategy]
-    return controller(task, config)
+    with use_connection(connection):
+        return controller(task, config)
 
 
 def evaluate_repair(data_root, repair):

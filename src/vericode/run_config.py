@@ -1,4 +1,4 @@
-"""Versioned repair configurations; paid providers remain unavailable."""
+"""Versioned repair configurations; hosted providers require a funded connection."""
 
 from dataclasses import asdict, dataclass, field
 
@@ -18,8 +18,8 @@ class RunConfiguration:
     execution: ExecutionLimits = field(default_factory=ExecutionLimits)
 
     def __post_init__(self) -> None:
-        if self.provider not in ("mock", "ollama"):
-            raise ValidationError("provider: only mock or local ollama is enabled; paid adapters require budget configuration")
+        if self.provider not in ("mock", "ollama", "openai", "openrouter"):
+            raise ValidationError("provider: select mock, ollama, openai or openrouter")
         identifier(self.model, "model")
         if self.provider == "ollama" and (any(c in self.model for c in ("/", "\\", "@")) or "cloud" in self.model.lower()):
             raise ValidationError("model: cloud aliases and URLs are disabled")

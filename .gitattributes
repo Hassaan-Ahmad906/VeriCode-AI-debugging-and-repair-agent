@@ -4,3 +4,6 @@ data/benchmark/quixbugs/upstream/correct_python_programs/gcd.py whitespace=-blan
 # Evidence hashes refer to exact bytes, including the collector's line endings.
 reports/day6/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 reports/day7/local-model/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Linux deployment scripts need Unix line endings even from Windows checkouts.
+deploy/*.sh text eol=lf
+deploy/*.service text eol=lf

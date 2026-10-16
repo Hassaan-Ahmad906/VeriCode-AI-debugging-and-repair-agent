@@ -12,7 +12,7 @@ from vericode.feedback_run import record_feedback_outcome
 from vericode.generated_tests import (
     ORACLE_VERSION, TEST_PROMPT_VERSION, TestGenerationRequest, make_test_provider, parse_cases, validate_cases,
 )
-from vericode.model_calls import ProviderFailure
+from vericode.model_calls import ProviderFailure, provider_enabled
 from vericode.model_io import summarize_calls
 from vericode.providers import make_provider
 from vericode.run_config import AugmentedConfiguration
@@ -21,14 +21,14 @@ from vericode.schemas import ValidationError
 
 def record_augmented_task(task, config: AugmentedConfiguration, executor=None, *, generator=None, repair_provider=None):
     started = monotonic()
-    generator = generator if generator is not None else (make_provider(config) if config.provider == "ollama" else make_test_provider(config.model, config.generation))
+    generator = generator if generator is not None else (make_provider(config) if config.provider != "mock" else make_test_provider(config.model, config.generation))
     repair_provider = repair_provider if repair_provider is not None else make_provider(config)
     request = TestGenerationRequest(task)
     decisions = []
     generated_calls = ()
     tests = task.repair_tests
     failure = None
-    if getattr(generator, "offline", False) is not True or getattr(repair_provider, "offline", False) is not True:
+    if not provider_enabled(generator) or not provider_enabled(repair_provider):
         failure = ("paid_execution_disabled", "Only offline providers are enabled.")
     else:
         try:

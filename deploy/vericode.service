@@ -1,0 +1,26 @@
+[Unit]
+Description=VeriCode private repair workspace
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=vericode
+Group=vericode
+SupplementaryGroups=docker
+WorkingDirectory=/opt/vericode
+ExecStart=/opt/vericode/.venv/bin/python -m vericode.ui_launcher --data-root /opt/vericode/data --port 8501
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/vericode/artifacts
+PrivateTmp=true
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+
+[Install]
+WantedBy=multi-user.target

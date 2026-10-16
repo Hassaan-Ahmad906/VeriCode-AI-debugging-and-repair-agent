@@ -5,7 +5,7 @@ import json
 from time import monotonic
 
 from vericode.jobs import CandidateExecutor, VisibleJob
-from vericode.model_calls import ProviderFailure
+from vericode.model_calls import ProviderFailure, provider_enabled
 from vericode.model_io import CallRecord, INSTRUCTION, ModelProvider, RepairRequest
 from vericode.patches import preview_diff
 from vericode.results import ExecutionResult
@@ -115,7 +115,7 @@ def feedback_repair(task: RepairTask, provider: ModelProvider, executor: Candida
     def fatal(result: ExecutionResult | None) -> bool:
         return result is None or result.status == "infrastructure_error" or result.cleanup_confirmed is False
 
-    if getattr(provider, "offline", False) is not True:
+    if not provider_enabled(provider):
         return finish("paid_execution_disabled", "Only offline providers are enabled.")
     initial = execution = execute(None)
     if fatal(execution):

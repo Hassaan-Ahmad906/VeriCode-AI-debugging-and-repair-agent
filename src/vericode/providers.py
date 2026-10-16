@@ -22,6 +22,9 @@ _SCRIPTED_REPLACEMENTS = {
 
 
 def make_provider(config):
+    if config.provider in ("openai", "openrouter"):
+        from vericode.hosted_provider import make_hosted_provider
+        return make_hosted_provider(config)
     if config.provider == "ollama":
         from vericode.local_provider import make_local_provider
         return make_local_provider(config)

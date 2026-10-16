@@ -29,7 +29,7 @@ async def main():
         await call("Emulation.setDeviceMetricsOverride", {"width": 1536, "height": 1100, "deviceScaleFactor": 1, "mobile": False})
         await call("Page.navigate", {"url": "http://127.0.0.1:8501"})
         for _ in range(60):
-            result = await call("Runtime.evaluate", {"expression": "document.body.innerText.includes('Repair workbench') && document.body.innerText.includes('Run configuration')", "returnByValue": True})
+            result = await call("Runtime.evaluate", {"expression": "document.body.innerText.includes('Better code.') && document.body.innerText.includes('Build your agent')", "returnByValue": True})
             if result.get("result", {}).get("value"):
                 break
             await asyncio.sleep(0.5)
@@ -38,16 +38,16 @@ async def main():
         await asyncio.sleep(1)
         result = await call("Page.captureScreenshot", {"format": "png"})
         root = Path(__file__).resolve().parents[1] / "artifacts"
-        (root / "ui-workbench-reviewed.png").write_bytes(base64.b64decode(result["data"]))
+        (root / "ui-overview-reviewed.png").write_bytes(base64.b64decode(result["data"]))
         print("Rendered desktop workspace", flush=True)
-        for title in ("Model settings", "Training studio", "Run history", "Research & reports"):
+        for title in ("Repair workbench", "Models & API", "Usage & cost", "Training studio", "Deployment", "Run history", "Research & reports"):
             expression = "Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes(" + json.dumps(title) + "))?.click()"
             await call("Runtime.evaluate", {"expression": expression})
             await asyncio.sleep(1)
             screenshot = await call("Page.captureScreenshot", {"format": "png"})
             name = title.lower().replace(" & ", "-").replace(" ", "-")
             (root / f"ui-{name}.png").write_bytes(base64.b64decode(screenshot["data"]))
-        await call("Runtime.evaluate", {"expression": "Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Repair workbench'))?.click()"})
+        await call("Runtime.evaluate", {"expression": "Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Overview'))?.click()"})
         await asyncio.sleep(1)
         await call("Emulation.setDeviceMetricsOverride", {"width": 390, "height": 844, "deviceScaleFactor": 1, "mobile": True})
         await asyncio.sleep(1)

@@ -57,6 +57,13 @@ def _reject_constant(value: str):
     raise ValidationError("response JSON contains a non-finite number")
 
 
+def provider_enabled(provider):
+    if getattr(provider, "offline", False) is True:
+        return True
+    from vericode.hosted_provider import BudgetedProvider
+    return isinstance(provider, BudgetedProvider)
+
+
 def parse_candidate(text: str, byte_limit: int) -> Candidate:
     try:
         if not isinstance(text, str) or len(text.encode("utf-8")) > byte_limit:
@@ -84,7 +91,7 @@ class StructuredProvider:
                              reply.usage.output_tokens, reply.usage.cost_usd, reply.calls)
 
     def generate(self, request: RepairRequest, parser: Callable, *, max_transport_calls: int | None = None) -> StructuredReply:
-        if not self.offline:
+        if not provider_enabled(self):
             raise ProviderFailure("paid_execution_disabled", (), "Paid/network model execution is disabled; configure a budgeted adapter first.")
         call_limit = self.limits.max_transport_calls
         if max_transport_calls is not None:

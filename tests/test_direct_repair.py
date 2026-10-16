@@ -148,7 +148,7 @@ def test_configuration_roundtrip_and_invalid_provider():
     assert RunConfiguration.from_dict(config.to_dict()) == config
     data = config.to_dict()
     data["provider"] = "paid-provider"
-    with pytest.raises(ValidationError, match="only mock"):
+    with pytest.raises(ValidationError, match="provider:"):
         RunConfiguration.from_dict(data)
 
 

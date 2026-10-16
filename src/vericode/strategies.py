@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from time import monotonic
 
 from vericode.jobs import CandidateExecutor, VisibleJob
-from vericode.model_calls import ProviderFailure
+from vericode.model_calls import ProviderFailure, provider_enabled
 from vericode.model_io import CallRecord, ModelProvider, RepairRequest
 from vericode.patches import preview_diff
 from vericode.results import ExecutionResult
@@ -26,7 +26,7 @@ class DirectOutcome:
 def direct_repair(task: RepairTask, provider: ModelProvider, executor: CandidateExecutor) -> DirectOutcome:
     started = monotonic()
     # Both the strategy and standard adapter guard against accidental paid calls.
-    if getattr(provider, "offline", False) is not True:
+    if not provider_enabled(provider):
         return DirectOutcome("paid_execution_disabled", "Only offline providers are enabled.", (), None, None, None, None, monotonic() - started)
     try:
         response = provider.propose(RepairRequest(task))

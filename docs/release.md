@@ -15,7 +15,8 @@ Tag only after these required local checks pass:
   Offline CI runs without model credentials, inference or GPU. Dependency
   installation and Docker image builds may need internet access.
 - Streamlit interactions cover repair/evaluator separation, stale result removal
-  and cleanup blocking; localhost HTTP health check passes. Mock remains default.
+  and cleanup blocking; localhost HTTP health check passes. CLI mock remains the
+  default; the UI starts on Overview and offers local model/Docker by default.
 - Official runtime download checksum passes; a real free CPU model can return a
   bounded structured repair, and Docker observes its candidate tests. Preserve
   failures and actual usage; a model success is a smoke check, not a benchmark.

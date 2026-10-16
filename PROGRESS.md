@@ -1,5 +1,48 @@
 # Progress
 
+## 2026-10-16 — Dark workspace, user-owned APIs and deployment preparation
+
+- Rebuilt the interface around a focused Overview and separate Repair, Runs,
+  Models & API, Usage & cost, Training, Deployment and Research pages. Dark theme,
+  desktop/mobile browser review, no configuration or editor on the home page.
+  Real repair defaults to local Ollama, Docker, feedback and the failing clamp
+  fixture; simulation remains an explicit option.
+- Enabled per-session OpenAI/OpenRouter keys: metadata verification, live official
+  model/pricing discovery, model selection, positive spending cap, explicit
+  authorization and connection. Disconnect forgets the key. No key enters run
+  records, global environment or candidate containers. Context-local connection
+  isolation and an SQLite per-key ledger prevent shared-session credentials,
+  concurrent reservations and refunds of unknown billing outcomes.
+- OpenAI USD amounts are fetched-standard-rate estimates; OpenRouter uses its
+  response's USD cost. Unknown usage remains unknown. Pricing freshness, route
+  price caps, conservative reservations and no paid automatic retries are
+  enforced. Public OpenAI pricing (40 rows) and OpenRouter catalog (466 models)
+  fetched successfully with the actual HTTPS adapter. No real key or paid call
+  was used during development; live account/model compatibility remains an owner
+  connection check. Historical scripted study/batch protocols remain unchanged.
+- Prepared `deploy/bootstrap.sh`, systemd unit and private Linux VM/SSH guide.
+  Bash syntax passed; Linux deployment is not runtime-verified. Hosting is not
+  selected or published. This remains a private workspace, not public SaaS.
+- Final full regression run: 289 passed including 27 Docker checks. After minor
+  UI default refinements, 33 targeted checks passed, with one explicit Docker
+  skip. The first full run correctly rejected edits made during a frozen study;
+  a stable retry passed, then the final stable full suite passed. Dependency
+  consistency, whitespace review and browser page navigation passed.
+- New real dark-UI/local-model development check: clamp, B feedback, one call,
+  487 input / 65 output tokens, $0 API, visible and independent suites passed.
+  Local raw record retained at `artifacts/dark-ui-live.json`. This is a repeated
+  development smoke check, not a controlled method comparison. No historical
+  Day 6/7 evidence bytes were changed.
+- Owner reports Colab GPU detected and cells running. Completed adapter, training
+  losses and GGUF have not been received or verified. Keep the runtime open,
+  download the adapter ZIP (manifest inside) and optional GGUF/export JSON/license;
+  then inspect actual provenance and independently compare base versus adapter.
+- Remaining owner actions: enter personal provider keys/limits in the UI; finish
+  Colab and provide its artifacts; choose a host later. No cloud fees were incurred
+  by this implementation. Local app/model services remain running on request.
+- Commit: `feat: add dark workspace and budgeted user-owned model connections`;
+  exact push/CI outcome is verified after committing rather than assumed here.
+
 ## 2026-10-16 — Day 7 task 3: local prototype delivery
 
 - Workspace/model commit pushed and verified: `e170ada6cc1a86ec5ece19c3d97d1a7e7dc9b4fd`.

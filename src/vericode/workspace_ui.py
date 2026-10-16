@@ -6,7 +6,9 @@ import csv
 from html import escape
 import io
 import json
+import hashlib
 from pathlib import Path
+import zipfile
 
 import streamlit as st
 
@@ -20,12 +22,14 @@ from vericode.run_config import AugmentedConfiguration, FeedbackConfiguration, R
 from vericode.sandbox_policy import ExecutionLimits
 from vericode.schemas import RepairTask, ValidationError
 from vericode.ui_theme import THEME
+from vericode.hosted_provider import HostedConnection, SpendLedger, verify_connection
 
 ROOT = Path(__file__).resolve().parents[2]
 COLAB = "https://colab.research.google.com/github/Hassaan-Ahmad906/VeriCode-AI-debugging-and-repair-agent/blob/master/notebooks/train_free_colab.ipynb"
-PAGES = {"Repair workbench": ":material/code:", "Run history": ":material/history:",
-         "Model settings": ":material/tune:", "Training studio": ":material/model_training:",
-         "Research & reports": ":material/analytics:"}
+PAGES = {"Overview": ":material/dashboard:", "Repair workbench": ":material/code:",
+         "Run history": ":material/history:", "Models & API": ":material/hub:",
+         "Usage & cost": ":material/payments:", "Training studio": ":material/model_training:",
+         "Deployment": ":material/cloud_upload:", "Research & reports": ":material/analytics:"}
 
 
 def html(value):
@@ -42,10 +46,10 @@ def card(label, value, note):
 
 
 def sidebar():
-    page = st.session_state.setdefault("page", "Repair workbench")
+    page = st.session_state.setdefault("page", "Overview")
     with st.sidebar:
         html('<div class="brand"><div class="brand-mark">V</div>vericode<span>LAB</span></div>'
-             '<div class="workspace-switch"><div class="avatar">VC</div><div><div class="workspace-name">Personal workspace</div><div class="workspace-detail">Local environment · Free</div></div></div>'
+             '<div class="workspace-switch"><div class="avatar">VC</div><div><div class="workspace-name">Personal workspace</div><div class="workspace-detail">Development environment</div></div></div>'
              '<div class="workspace-label">WORKSPACE</div>')
         for name, icon in PAGES.items():
             if st.button(name, key=f"nav_{name}", icon=icon, type="primary" if page == name else "secondary", width="stretch"):
@@ -53,8 +57,39 @@ def sidebar():
                 st.rerun()
         html('<div class="workspace-label">PROJECT</div>')
         st.link_button("Documentation", "https://github.com/Hassaan-Ahmad906/VeriCode-AI-debugging-and-repair-agent#readme", icon=":material/menu_book:", width="stretch")
-        html('<div class="sidebar-foot"><span class="live-dot"></span>Local workspace<br>API spending disabled<br><span style="color:#5f6f8b">VeriCode · Python repair lab</span></div>')
+        connected = st.session_state.get("hosted_connection")
+        label = f'{connected.provider} connected' if connected else 'Local workspace'
+        html(f'<div class="sidebar-foot"><span class="live-dot"></span>{escape(label)}<br>VeriCode · Agent workspace</div>')
     return page
+
+
+def navigate(page):
+    st.session_state["page"] = page
+    st.rerun()
+
+
+def overview_page():
+    heading("Overview", "Your workspace for reliable AI code repair.")
+    html('<div class="hero"><div class="eyebrow">VERICODE WORKSPACE</div>'
+         '<h1>Better code.<br><span>Verified at every step.</span></h1>'
+         '<p>Repair Python functions with AI, inspect the changes and verify them in an isolated sandbox.</p>'
+         '<div class="hero-tags"><span>AI repair</span><span>Isolated execution</span><span>Independent evaluation</span></div></div>')
+    left, right, _ = st.columns([1.2, 1.2, 3])
+    if left.button("Start a repair", type="primary", icon=":material/arrow_forward:", width="stretch"):
+        navigate("Repair workbench")
+    if right.button("Connect a model", icon=":material/hub:", width="stretch"):
+        navigate("Models & API")
+    st.write("")
+    features = [("01", "Repair & verify", "Inspect patches, run tests and compare independent results.", "Repair workbench"),
+                ("02", "Your models. Your keys.", "Local inference or hosted models, with explicit spending limits.", "Models & API"),
+                ("03", "Build your agent", "Fine-tune a coding adapter on a cloud GPU and export it locally.", "Training studio")]
+    for column, (number, title, copy, page) in zip(st.columns(3), features):
+        with column:
+            with st.container(border=True):
+                html(f'<span class="step-number">{number}</span><div class="model-name">{title}</div><div class="model-copy">{copy}</div>')
+                if st.button("Open " + page, key="feature_" + page, icon=PAGES[page]):
+                    navigate(page)
+    html('<div class="overview-footer">BUILT FOR TRACEABILITY <span>Reviewable patches · Recorded usage · Exportable evidence</span></div>')
 
 
 def execution_view(title, observation):
@@ -151,15 +186,7 @@ def workbench(data_root):
         run = st.button("Run repair", key="run_repair", type="primary", icon=":material/play_arrow:",
                         disabled=st.session_state.get("cleanup_blocked", False), width="stretch")
         st.caption("Bounded execution")
-    history = st.session_state.get("run_history", [])
-    values = [("Repair runs", len(history), "Retained in this session"),
-              ("Accepted patches", sum(row["repair"]["agent_accepted"] is True for row in history), "Visible checks only"),
-              ("Model calls", sum(row["repair"]["usage"]["model_calls"] for row in history), "Actual transport invocations"),
-              ("API spend", "$0.00", "Free local & scripted providers")]
-    with st.container(key="run_metrics"):
-        for column, value in zip(st.columns(4), values):
-            with column:
-                card(*value)
+    connection = st.session_state.get("hosted_connection")
     with st.container(border=True):
         html('<div class="section-title">Run configuration</div>')
         c1, c2, c3, c4 = st.columns([1.5, 1.4, 1.2, 1.2])
@@ -167,10 +194,13 @@ def workbench(data_root):
         strategy = c2.selectbox("Strategy", ["direct", "feedback", "augmented"], key="strategy",
             format_func=lambda value: {"direct": "A · Direct repair", "feedback": "B · Feedback guided", "augmented": "C · Test augmented"}[value])
         backend = c3.selectbox("Execution", ["mock", "docker"], key="backend", format_func=lambda value: "Simulation" if value == "mock" else "Docker sandbox")
-        provider = c4.selectbox("Model provider", ["mock", "ollama"], key="provider", format_func=lambda value: "Scripted demo" if value == "mock" else "Local Ollama")
-        c1, c2 = st.columns([1.2, 2])
-        input_mode = c1.selectbox("Input", ["development fixture", "custom function"], key="input_mode")
-        model = c2.text_input("Local model tag", key="local_model_tag", disabled=provider == "mock")
+        providers = ["mock", "ollama"] + ([connection.provider] if connection else [])
+        if st.session_state.get("provider") not in providers:
+            st.session_state["provider"] = "ollama"
+        provider = c4.selectbox("Model provider", providers, key="provider", format_func=lambda value: {"mock": "Scripted demo", "ollama": "Local agent", "openai": "OpenAI", "openrouter": "OpenRouter"}[value])
+        input_mode = st.selectbox("Input", ["development fixture", "custom function"], key="input_mode")
+        model = connection.model if connection and provider == connection.provider else st.session_state["local_model_tag"] if provider == "ollama" else "scripted-v1"
+        st.caption(f"Model: {model} · Configure connections in Models & API")
         with st.expander("Advanced limits & resources"):
             a, b, c, d = st.columns(4)
             wall = a.number_input("Seconds per sandbox job", 0.5, 60.0, None if "limit_wall" in st.session_state else 10.0, step=0.5, key="limit_wall")
@@ -194,8 +224,8 @@ def workbench(data_root):
                 with visible_tab:
                     tests = st.text_area("Visible pytest tests", "from solution import add\n\ndef test_add():\n    assert add(2, 3) == 5\n", height=240, max_chars=32768, key="custom_tests")
                 task = RepairTask(1, "custom-v1", "custom_function", "development", specification, entry_point, "solution.py", source, tests)
-                if provider != "ollama":
-                    st.warning("Choose Local Ollama for custom code. The scripted provider only repairs known fixtures.")
+                if provider == "mock":
+                    st.warning("Choose Local agent or connect a hosted model for custom code.")
                     custom_ready = False
                 if strategy == "augmented":
                     st.warning("Custom code supports A/B. C requires a reviewed oracle for generated expected values.")
@@ -209,9 +239,9 @@ def workbench(data_root):
                 with visible_tab:
                     st.code(task.repair_tests, language="python", line_numbers=True)
     cls = {"direct": RunConfiguration, "feedback": FeedbackConfiguration, "augmented": AugmentedConfiguration}[strategy]
-    options = dict(provider=provider, model=model if provider == "ollama" else "scripted-v1", backend=backend,
-                   generation=GenerationLimits(output_tokens=tokens, max_transport_calls=1 if provider == "ollama" else 3,
-                   request_timeout_seconds=30 if provider == "ollama" else 15), execution=ExecutionLimits(wall_seconds=wall))
+    options = dict(provider=provider, model=model, backend=backend,
+                   generation=GenerationLimits(output_tokens=tokens, max_transport_calls=3 if provider == "mock" else 1,
+                   request_timeout_seconds=30 if provider != "mock" else 15), execution=ExecutionLimits(wall_seconds=wall))
     if strategy != "direct":
         options["feedback"] = FeedbackLimits(attempts, calls)
     config = cls(**options)
@@ -224,7 +254,7 @@ def workbench(data_root):
         st.session_state.pop("repair", None)
         st.session_state.pop("score", None)
         with st.spinner("Running repair within the configured limits…"):
-            repair = ui_service.repair_task(task, config)
+            repair = ui_service.repair_task(task, config, connection) if provider in ("openai", "openrouter") else ui_service.repair_task(task, config)
         st.session_state["repair"] = repair
         remember(repair, task)
         if ui_service.cleanup_unconfirmed(repair):
@@ -265,12 +295,23 @@ def history_page():
                 st.json(score, expanded=False)
 
 
+def clear_hosted():
+    for name in ("hosted_connection", "verified_catalog", "verified_identity", "repair", "score"):
+        st.session_state.pop(name, None)
+    st.session_state["authorize_api"] = False
+
+
+def disconnect_hosted():
+    clear_hosted()
+    st.session_state["api_key"] = ""
+
+
 def models_page():
-    heading("Model settings", "Connect an installed local model. Keep inference and credentials under your control.")
+    heading("Models & API", "Connect your models. Keep control of your credentials and spending.")
     left, right = st.columns([1.4, 1])
     with left:
         with st.container(border=True):
-            html('<span class="pill pill-blue">LOCAL INFERENCE</span><div class="model-name">Ollama runtime</div><div class="model-copy">A small quantized coding model runs on your CPU. No API key or paid subscription is needed.</div>')
+            html('<span class="pill pill-blue">BUILT-IN LOCAL AGENT</span><div class="model-name">VeriCode local</div><div class="model-copy">A pretrained coding model with the VeriCode repair controller. Runs on your CPU without API charges.</div>')
             st.text_input("Installed model tag", key="local_model_tag")
             st.code("127.0.0.1:11434", language="text")
             if st.button("Check local model", icon=":material/cable:"):
@@ -285,11 +326,95 @@ def models_page():
             html('<span class="pill">DEVELOPMENT</span><div class="model-name">Scripted demo</div><div class="model-copy">Reproducible fixture repairs for tests and demonstrations. It makes no language-model inference and needs no model download.</div>')
             st.caption("Available offline · Unknown token counts · $0 API cost")
     with st.container(border=True):
-        html('<div class="section-title">Bring your own API</div><div class="section-note">Hosted adapters are disabled under the selected free-only policy. No key is saved or transmitted.</div>')
-        first, second = st.columns(2)
-        first.text_input("Hosted API model", disabled=True, placeholder="Requires an enabled, budgeted hosted adapter")
-        second.text_input("API key", type="password", disabled=True, placeholder="Not required for local models")
-        st.caption("A future hosted connection needs a provider, pricing and an explicit spending policy. Keys never belong in chat, run records or Git.")
+        html('<div class="section-title">Bring your own API key</div><div class="section-note">Verify access, choose a model, authorize a limit and connect.</div>')
+        first, second = st.columns([1, 2])
+        provider = first.selectbox("Hosted provider", ["openai", "openrouter"], format_func=lambda x: {"openai": "OpenAI", "openrouter": "OpenRouter"}[x], key="hosted_provider", on_change=clear_hosted)
+        key = second.text_input("API key", type="password", key="api_key", placeholder="Your provider key", on_change=clear_hosted)
+        identity = hashlib.sha256((provider + "\0" + key).encode()).hexdigest()
+        if st.button("Verify key & fetch models", key="verify_key", icon=":material/verified_user:", disabled=not key):
+            clear_hosted()
+            try:
+                with st.spinner("Verifying key and fetching official pricing…"):
+                    catalog = verify_connection(provider, key)
+                if not catalog:
+                    raise ValidationError("No supported text models with official prices were found for this key.")
+                st.session_state["verified_catalog"] = catalog
+                st.session_state["verified_identity"] = identity
+                st.success("Key verified. Metadata only; no inference was requested.")
+            except (TransportError, ValidationError, ValueError):
+                st.error("Verification failed. Check the key, model access and provider connection. No inference was requested.")
+        catalog = st.session_state.get("verified_catalog", {}) if st.session_state.get("verified_identity") == identity else {}
+        if catalog:
+            model = st.selectbox("Hosted model", sorted(catalog), key="hosted_model")
+            price = catalog[model]
+            st.caption(f"Official rates / 1M tokens: input ${price.input_per_million:g} · output ${price.output_per_million:g}. Refresh verification after 24 hours.")
+            st.link_button("Official pricing source", price.source, icon=":material/open_in_new:")
+            limit = st.number_input("Total API limit for this key (USD)", 0.0, 10000.0, None if "api_limit" in st.session_state else 0.0, step=1.0, key="api_limit")
+            authorized = st.checkbox("I authorize requests with my key up to this limit", key="authorize_api")
+            if st.button("Connect model", key="connect_model", type="primary", disabled=not authorized or limit <= 0):
+                ledger = SpendLedger(ROOT / "artifacts/private/usage.sqlite3")
+                st.session_state["hosted_connection"] = HostedConnection(provider, model, price, key, limit, ledger)
+                st.session_state["provider"] = provider
+                st.session_state.pop("repair", None)
+                st.session_state.pop("score", None)
+                st.success("Connected. Select this provider in Repair workbench.")
+            st.caption("Limits accumulate per key across sessions. Requests reserve budget first; unknown billing outcomes block further calls. Also set a limit with your provider.")
+        connection = st.session_state.get("hosted_connection")
+        if connection:
+            st.success(f"Connected: {connection.provider} / {connection.model}")
+            st.button("Disconnect & forget key", key="disconnect_model", on_click=disconnect_hosted)
+        st.caption("Keys stay in this server session's memory and are sent only to the selected provider over HTTPS. They are excluded from run exports and candidate containers. Disconnect before sharing your browser.")
+
+
+def usage_page():
+    heading("Usage & cost", "Actual calls, reported tokens and clearly identified costs.")
+    connection = st.session_state.get("hosted_connection")
+    if connection:
+        budget = connection.ledger.status(connection.scope)
+        for column, data in zip(st.columns(3), [("API limit", f'${budget["cap_usd"]:.2f}', "Authorized for this key"),
+                ("Accounted / reserved", f'${budget["accounted_usd"]:.6f}', "Includes unresolved reservations"),
+                ("Requests", budget["calls"], "Durable per-key ledger")]):
+            with column:
+                card(*data)
+        if budget["blocked"]:
+            st.error("A request has an unresolved billing outcome. Further calls with this key are blocked. Check the provider activity before operator reconciliation.")
+        st.link_button("Provider usage & billing", "https://platform.openai.com/usage" if connection.provider == "openai" else "https://openrouter.ai/activity")
+        st.caption("OpenAI costs are estimates from fetched official standard rates; caching discounts may reduce billing. OpenRouter costs use its response's USD cost. Provider invoices are authoritative. This ledger covers VeriCode requests only.")
+    rows = []
+    for bundle in st.session_state.get("run_history", []):
+        repair = bundle["repair"]
+        for call in repair.get("model_calls", []):
+            usage = call["usage"]
+            rows.append({"run": repair["run_id"], "provider": call["provider"], "model": call["configured_model"],
+                         "status": call["status"], "input tokens": usage["input_tokens"], "output tokens": usage["output_tokens"],
+                         "cost USD": usage["cost_usd"], "cost basis": repair.get("hosted_connection", {}).get("cost_reporting", "local / scripted")})
+    if rows:
+        st.dataframe(rows, hide_index=True, width="stretch")
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+        st.download_button("Export usage CSV", output.getvalue(), file_name="vericode-usage.csv", mime="text/csv")
+    else:
+        st.info("No model calls in this session yet. Run a repair to record usage.")
+    st.caption("Blank usage means unknown, never zero. Local compute and cloud training charges are separate.")
+
+
+def deployment_page():
+    heading("Deployment", "A private deployment package, ready for your chosen host.")
+    with st.container(border=True):
+        html('<span class="pill pill-blue">PREPARED · NOT DEPLOYED</span><div class="model-name">Private Linux workspace</div><div class="model-copy">Run the application on a Linux VM with Docker. Access it through an SSH tunnel; the web interface stays on loopback.</div>')
+        folder = ROOT / "deploy"
+        paths = sorted(path for path in folder.rglob("*") if path.is_file()) if folder.exists() else []
+        if paths:
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as bundle:
+                for path in paths:
+                    bundle.writestr(str(path.relative_to(ROOT)), path.read_bytes())
+            st.download_button("Download deployment files", archive.getvalue(), file_name="vericode-deployment.zip", mime="application/zip", type="primary")
+        st.code("ssh -L 8501:127.0.0.1:8501 YOUR_USER@YOUR_SERVER", language="bash")
+        st.caption("Hosting is not selected. No service has been published and no cloud resources have been purchased.")
+    st.link_button("Deployment guide", "https://github.com/Hassaan-Ahmad906/VeriCode-AI-debugging-and-repair-agent/blob/master/deploy/README.md")
 
 
 def training_page():
@@ -328,29 +453,40 @@ def main():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--data-root", type=Path, default=Path("data"))
     args, _ = parser.parse_known_args()
-    st.set_page_config(page_title="VeriCode · Repair workspace", page_icon="V", layout="wide")
+    st.set_page_config(page_title="VeriCode · Agent workspace", page_icon="V", layout="wide")
     html(THEME)
     # Preserve settings/custom input when their widgets are absent on another
     # page. Streamlit otherwise deletes widget-owned state after navigation.
     for key in ("task_id", "strategy", "backend", "provider", "input_mode", "local_model_tag",
                 "custom_entry_point", "custom_source", "custom_specification", "custom_tests",
-                "limit_wall", "limit_attempts", "limit_calls", "limit_tokens"):
+                "limit_wall", "limit_attempts", "limit_calls", "limit_tokens", "api_key", "hosted_provider",
+                "hosted_model", "api_limit", "authorize_api"):
         if key in st.session_state:
             st.session_state[key] = st.session_state[key]
     st.session_state.setdefault("local_model_tag", "qwen2.5-coder:1.5b")
+    st.session_state.setdefault("provider", "ollama")
+    st.session_state.setdefault("backend", "docker")
+    st.session_state.setdefault("strategy", "feedback")
+    st.session_state.setdefault("task_id", "clamp")
     page = sidebar()
     if st.session_state.get("cleanup_blocked", False):
         st.error("Container cleanup is unconfirmed. Jobs are blocked. Verify cleanup before restarting this local session.")
     try:
-        if page == "Repair workbench":
+        if page == "Overview":
+            overview_page()
+        elif page == "Repair workbench":
             workbench(args.data_root)
         elif page == "Run history":
             history_page()
-        elif page == "Model settings":
+        elif page == "Models & API":
             models_page()
+        elif page == "Usage & cost":
+            usage_page()
+        elif page == "Deployment":
+            deployment_page()
         elif page == "Training studio":
             training_page()
         else:
             research_page()
-    except (ValidationError, OSError) as exc:
+    except (ValidationError, TransportError, OSError) as exc:
         st.error(str(exc))
